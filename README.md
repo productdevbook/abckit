@@ -29,9 +29,14 @@ export default defineNuxtConfig({
 })
 ```
 
-That's it! Components are auto-imported:
+Import components from `abckit/shadcn/*`:
 
 ```vue
+<script setup lang="ts">
+import { Button } from 'abckit/shadcn/button'
+import { Card, CardHeader, CardTitle } from 'abckit/shadcn/card'
+</script>
+
 <template>
   <Button variant="outline">Click me</Button>
   <Card>
