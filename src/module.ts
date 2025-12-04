@@ -339,20 +339,6 @@ export {}
       hid: 'nuxt-color-mode-script',
     }
 
-    // Register composables auto-imports
-    addImportsDir(resolve('./runtime/composables'))
-
-    // Register shared directory auto-imports (Nuxt 4 feature)
-    // addImportsDir(resolve('./runtime/shared/utils'))
-    // addImportsDir(resolve('./runtime/shared/types'))
-
-    // Register server utils auto-imports
-    // addServerImportsDir(resolve('./runtime/server/utils'))
-
-    // Register shared directory for server-side (Nuxt 4 feature)
-    // addServerImportsDir(resolve('./runtime/shared/utils'))
-    // addServerImportsDir(resolve('./runtime/shared/types'))
-
     // Register server directory (auto-scans middleware, api, etc.)
     addServerScanDir(resolve('./runtime/server'))
 
