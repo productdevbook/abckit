@@ -1,0 +1,135 @@
+{
+  "name": "abckit",
+  "type": "module",
+  "version": "0.0.1",
+  "private": false,
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/module.d.mts",
+      "import": "./dist/module.mjs"
+    },
+    "./runtime/*": "./dist/runtime/*",
+    "./server/utils": {
+      "types": "./dist/runtime/server/utils/index.d.ts",
+      "import": "./dist/runtime/server/utils/index.js"
+    },
+    "./components/*": "./dist/runtime/components/*",
+    "./shadcn/*": {
+      "types": "./dist/runtime/components/ui/*/index.d.ts",
+      "import": "./dist/runtime/components/ui/*/index.js"
+    },
+    "./composables/*": "./dist/runtime/composables/*",
+    "./graphql/*": "./dist/runtime/graphql/*",
+    "./stores/*": "./dist/runtime/stores/*",
+    "./utils": {
+      "types": "./dist/runtime/utils/index.d.ts",
+      "import": "./dist/runtime/utils/index.js"
+    },
+    "./utils/*": {
+      "types": "./dist/runtime/utils/*.d.ts",
+      "import": "./dist/runtime/utils/*.js"
+    },
+    "./types/client": {
+      "types": "./dist/runtime/types/nitro-graphql-client.d.ts"
+    },
+    "./shared": "./dist/runtime/shared",
+    "./shared/*": "./dist/runtime/shared/*",
+    "./colada": {
+      "types": "./dist/runtime/colada.options.d.ts",
+      "import": "./dist/runtime/colada.options.js"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "types": "./dist/module.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "nuxt-module-build build",
+    "dev": "nuxt dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "lint": "eslint .",
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@graphql-tools/utils": "^10.11.0",
+    "@nuxt/icon": "^2.1.0",
+    "@nuxtjs/color-mode": "^4.0.0",
+    "@nuxtjs/i18n": "^10.2.1",
+    "@nuxtjs/tailwindcss": "7.0.0-beta.1",
+    "@openfga/sdk": "^0.9.1",
+    "@pinia/colada": "^0.18.0",
+    "@pinia/colada-nuxt": "^0.2.4",
+    "@pinia/nuxt": "^0.11.3",
+    "@polar-sh/sdk": "^0.41.5",
+    "@sindresorhus/slugify": "^3.0.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tanstack/vue-table": "^8.21.3",
+    "@vee-validate/nuxt": "^4.15.1",
+    "@vueuse/core": "^14.1.0",
+    "@vueuse/nuxt": "^14.1.0",
+    "@vueuse/router": "^14.1.0",
+    "apiful": "^4.0.0",
+    "aws4fetch": "^1.0.20",
+    "better-auth": "^1.4.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "consola": "^3.4.2",
+    "dataloader": "^2.2.3",
+    "date-fns": "^4.1.0",
+    "defu": "^6.1.4",
+    "drizzle-kit": "^0.31.8",
+    "drizzle-orm": "^0.45.0",
+    "drizzle-zod": "^0.8.3",
+    "embla-carousel-vue": "^8.6.0",
+    "graphql": "^16.12.0",
+    "graphql-config": "^5.1.5",
+    "graphql-scalars": "^1.25.0",
+    "graphql-yoga": "^5.17.1",
+    "lucide-vue-next": "^0.555.0",
+    "md-editor-v3": "^6.2.0",
+    "nitro-graphql": "^1.6.1",
+    "nitropack": "^2.12.9",
+    "notivue": "^2.4.5",
+    "pg": "^8.16.3",
+    "pinia": "^3.0.4",
+    "reka-ui": "^2.6.1",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4.1.17",
+    "tw-animate-css": "^1.4.0",
+    "unstorage": "^1.17.3",
+    "uuid": "^13.0.0",
+    "vaul-vue": "^0.4.1",
+    "vee-validate": "5.0.0-beta.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vue": "^3.5.25",
+    "vue-input-otp": "^0.3.2",
+    "vue-router": "^4.6.3",
+    "vue-tsc": "^3.1.5",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "latest",
+    "@nuxt/module-builder": "^1.0.2",
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
+    "eslint": "^9.39.1",
+    "h3": "^1.15.4",
+    "nuxt": "^4.2.1",
+    "typescript": "^5.9.3",
+    "vue": "^3.5.25"
+  },
+  "resolutions": {
+    "abckit": "workspace:*"
+  },
+  "pnpm": {
+    "overrides": {
+      "entities": "7.0.0"
+    },
+    "patchedDependencies": {
+      "entities@7.0.0": "patches/entities@7.0.0.patch"
+    }
+  }
+}

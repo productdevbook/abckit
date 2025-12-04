@@ -1,0 +1,6 @@
+patchedDependencies:
+  entities@7.0.0: patches/entities@7.0.0.patch
+onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
+  - better-sqlite3
+  - sharp

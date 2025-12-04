@@ -1,0 +1,19 @@
+diff --git a/package.json b/package.json
+index bbdf20befe3943da258d50016323e6253678ee3d..fa0b372050f1ab5270152c2e498c32e36b71b1f5 100644
+--- a/package.json
++++ b/package.json
+@@ -50,6 +50,14 @@
+                 "types": "./dist/commonjs/escape.d.ts",
+                 "default": "./dist/commonjs/escape.js"
+             }
++        },
++        "./lib/decode.js": {
++            "import": "./dist/esm/decode.js",
++            "require": "./dist/commonjs/decode.js"
++        },
++        "./lib/escape.js": {
++            "import": "./dist/esm/escape.js",
++            "require": "./dist/commonjs/escape.js"
+         }
+     },
+     "main": "./dist/commonjs/index.js",
