@@ -233,12 +233,20 @@ function switchUser() {
             <!-- Quick Info -->
             <div class="grid grid-cols-2 gap-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg">
               <div>
-                <div class="font-medium text-slate-500 dark:text-slate-400 text-xs mb-1">Status Code</div>
-                <div class="font-mono text-slate-900 dark:text-slate-100">{{ error.statusCode }}</div>
+                <div class="font-medium text-slate-500 dark:text-slate-400 text-xs mb-1">
+                  Status Code
+                </div>
+                <div class="font-mono text-slate-900 dark:text-slate-100">
+                  {{ error.statusCode }}
+                </div>
               </div>
               <div>
-                <div class="font-medium text-slate-500 dark:text-slate-400 text-xs mb-1">Timestamp</div>
-                <div class="font-mono text-slate-900 dark:text-slate-100 text-xs">{{ new Date().toLocaleString() }}</div>
+                <div class="font-medium text-slate-500 dark:text-slate-400 text-xs mb-1">
+                  Timestamp
+                </div>
+                <div class="font-mono text-slate-900 dark:text-slate-100 text-xs">
+                  {{ new Date().toLocaleString() }}
+                </div>
               </div>
             </div>
 

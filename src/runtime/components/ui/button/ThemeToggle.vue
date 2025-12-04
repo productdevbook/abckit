@@ -5,8 +5,8 @@ import { Icon } from '#components'
 const colorMode = useColorMode()
 
 function toggleDarkMode() {
-  colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
-  colorMode.preference = colorMode.value
+  const newMode = colorMode.value === 'dark' ? 'light' : 'dark'
+  colorMode.preference = newMode
 }
 </script>
 

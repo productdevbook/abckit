@@ -55,7 +55,7 @@ export function useCurrencies(displayLocale: string = 'tr') {
       
       const currencyNames = new Intl.DisplayNames([displayLocale], { type: 'currency' })
       
-      const allCurrencies = allCurrencyCodes.map(code => {
+      const allCurrencies = allCurrencyCodes.map((code: string) => {
         const name = currencyNames.of(code) || code
         const symbol = getCurrencySymbol(code)
         
@@ -70,11 +70,11 @@ export function useCurrencies(displayLocale: string = 'tr') {
       })
       
       // Sort: Popular first, then alphabetically by name
-      return allCurrencies.sort((a, b) => {
+      return allCurrencies.sort((a: CurrencyOption, b: CurrencyOption) => {
         // Popular currencies first
         if (a.popular && !b.popular) return -1
         if (!a.popular && b.popular) return 1
-        
+
         // Then alphabetically by localized name
         return a.name.localeCompare(b.name, displayLocale)
       })

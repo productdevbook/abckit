@@ -1,8 +1,10 @@
+shellEmulator: true
+catalogMode: prefer
+cleanupUnusedCatalogs: true
+trustPolicy: no-downgrade
 packages:
   - ./
   - playground
-
-ignore-workspace-root-check: true
 
 patchedDependencies:
   entities@7.0.0: patches/entities@7.0.0.patch

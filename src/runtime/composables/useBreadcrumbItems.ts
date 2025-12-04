@@ -151,7 +151,7 @@ export function pathBreadcrumbSegments(path: string, rootNode: string = '/'): st
 }
 
 function withoutQuery(path: string): string {
-  return path.split('?')[0]
+  return path.split('?')[0] ?? ''
 }
 
 function titleCase(s: string): string {
@@ -267,8 +267,7 @@ export function useBreadcrumbItems(_options: BreadcrumbProps = {}) {
       if (overrides) {
         overrides.forEach((item, index) => {
           if (item !== undefined) {
-            // @ts-expect-error untyped
-            acc.overrides![index] = toRaw(toValue(item))
+            acc.overrides![index] = toRaw(toValue(item)) as any
           }
         })
       }
@@ -312,8 +311,8 @@ export function useBreadcrumbItems(_options: BreadcrumbProps = {}) {
         } as BreadcrumbItemProps & { _index: number, _override: any }
       })
 
-    segments.unshift(...(flatOptions.prepend || []))
-    segments.push(...(flatOptions.append || []))
+    segments.unshift(...((flatOptions.prepend || []) as any[]))
+    segments.push(...((flatOptions.append || []) as any[]))
 
     // Apply metadata and labels with CORRECT PRIORITY ORDER
     return (segments.filter(Boolean) as BreadcrumbItemProps[])
@@ -352,7 +351,7 @@ export function useBreadcrumbItems(_options: BreadcrumbProps = {}) {
           // Priority 2 (Medium): Apply route meta breadcrumb from definePageMeta
           // This merges { to } with routeMeta.breadcrumb, routeMeta takes priority for its fields
           if (routeMeta.breadcrumb) {
-            item = defu(routeMeta.breadcrumb, { to: item.to })
+            item = defu(routeMeta.breadcrumb, { to: item.to }) as BreadcrumbItemProps
           }
         }
         else if (flatOptions.hideNonExisting) {

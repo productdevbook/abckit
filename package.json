@@ -40,7 +40,6 @@
       "import": "./dist/runtime/colada.options.js"
     }
   },
-  "main": "./dist/module.mjs",
   "types": "./dist/module.d.mts",
   "files": [
     "dist"
@@ -52,6 +51,7 @@
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
   },
   "dependencies": {
@@ -114,6 +114,7 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^6.4.1",
     "@nuxt/eslint": "latest",
     "@nuxt/module-builder": "^1.0.2",
     "@types/node": "^24.10.1",

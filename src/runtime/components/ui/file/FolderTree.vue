@@ -27,7 +27,7 @@ const { data: filesData } = useFiles(1, 100, undefined, props.currentFolderId)
 
 // Filter only folders and exclude the file being moved
 const folders = computed(() => {
-  return filesData.value?.data?.files?.files?.filter(file =>
+  return filesData.value?.data?.files?.files?.filter((file: any) =>
     file.isFolder && file.id !== props.excludedFolderId,
   ) || []
 })

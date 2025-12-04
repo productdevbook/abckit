@@ -60,17 +60,21 @@ const emit = defineEmits<{
 const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', Component> = {
   IMAGE: Image,
   VIDEO: Film,
+  AUDIO: FileText,
   DOCUMENT: FileText,
+  ARCHIVE: Cloud,
   OTHER: Cloud,
   FOLDER: Folder,
 }
 
 // File type labels
 const FILE_TYPE_LABELS: Record<FileType, string> = {
-  IMAGE: 'Resim',
+  IMAGE: 'Image',
   VIDEO: 'Video',
-  DOCUMENT: 'Belge',
-  OTHER: 'Diğer',
+  AUDIO: 'Audio',
+  DOCUMENT: 'Document',
+  ARCHIVE: 'Archive',
+  OTHER: 'Other',
 }
 
 function getFileIcon(file: FileItem) {
@@ -79,7 +83,7 @@ function getFileIcon(file: FileItem) {
 }
 
 function getFileTypeLabel(file: FileItem): string {
-  if (file.isFolder) return 'Klasör'
+  if (file.isFolder) return 'Folder'
   return FILE_TYPE_LABELS[file.type]
 }
 

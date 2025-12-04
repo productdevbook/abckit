@@ -52,7 +52,9 @@ const emit = defineEmits<{
 const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', Component> = {
   IMAGE: Image,
   VIDEO: Film,
+  AUDIO: FileText,
   DOCUMENT: FileText,
+  ARCHIVE: Cloud,
   OTHER: Cloud,
   FOLDER: Folder,
 }

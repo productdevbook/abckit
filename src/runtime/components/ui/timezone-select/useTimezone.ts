@@ -1,10 +1,10 @@
 interface TimezoneOption {
   value: string // 'Europe/Istanbul'
-  label: string // 'Istanbul' 
+  label: string // 'Istanbul'
   offset: string // 'UTC+03:00'
   region: string // 'Europe'
-  country?: string // 'Turkey'
-  popular?: boolean
+  country: string | undefined // 'Turkey'
+  popular: boolean
   searchText: string // For filtering
 }
 
@@ -143,11 +143,11 @@ export function useTimezone(labels: TimezoneLabels = {}) {
    */
   const formatTimezoneLabel = (timezone: string): string => {
     if (timezone === 'UTC') return 'UTC'
-    
+
     const parts = timezone.split('/')
     if (parts.length < 2) return timezone
-    
-    const city = parts[parts.length - 1].replace(/_/g, ' ')
+
+    const city = parts[parts.length - 1]!.replace(/_/g, ' ')
     return city
   }
 
@@ -182,7 +182,7 @@ export function useTimezone(labels: TimezoneLabels = {}) {
           label,
           offset,
           country,
-          regionLabels[region]
+          regionLabels[region as keyof typeof regionLabels]
         ].filter(Boolean).join(' ').toLowerCase()
 
         return {
@@ -198,14 +198,14 @@ export function useTimezone(labels: TimezoneLabels = {}) {
         // Sort by popularity first, then alphabetically
         if (a.popular && !b.popular) return -1
         if (!a.popular && b.popular) return 1
-        if (a.region !== b.region) return a.region.localeCompare(b.region)
+        if (a.region !== b.region) return (a.region || '').localeCompare(b.region || '')
         return a.label.localeCompare(b.label)
-      })
+      }) as TimezoneOption[]
     } catch {
       // Fallback to common timezones if Intl.supportedValuesOf is not available
       return [
-        { value: 'UTC', label: 'UTC', offset: 'UTC+00:00', region: 'UTC', popular: true, searchText: 'utc' },
-        { value: 'Europe/Istanbul', label: 'Istanbul', offset: 'UTC+03:00', region: 'Europe', country: 'Türkiye', popular: true, searchText: 'europe/istanbul istanbul türkiye utc+03:00 avrupa' }
+        { value: 'UTC', label: 'UTC', offset: 'UTC+00:00', region: 'UTC', country: undefined, popular: true, searchText: 'utc' },
+        { value: 'Europe/Istanbul', label: 'Istanbul', offset: 'UTC+03:00', region: 'Europe', country: 'Turkey', popular: true, searchText: 'europe/istanbul istanbul turkey utc+03:00 europe' }
       ]
     }
   }

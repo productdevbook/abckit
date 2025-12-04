@@ -1,8 +1,7 @@
 import type { NitroGraphQLOptions } from 'nitro-graphql'
 import type { BreadcrumbItemProps } from './runtime/composables/useBreadcrumbItems'
-import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { addComponentExports, addComponentsDir, addImportsDir, addRouteMiddleware, addServerScanDir, addTypeTemplate, createResolver, defineNuxtModule, resolvePath } from '@nuxt/kit'
+import { addImportsDir, addRouteMiddleware, addServerScanDir, addTypeTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
 import { defu } from 'defu'
 
 export interface BreadcrumbsConfig {
@@ -35,10 +34,52 @@ export interface SetupConfig {
 
 declare module 'nuxt/schema' {
   interface AppConfig extends BreadcrumbsConfig, SetupConfig { }
+
+  interface RuntimeConfig {
+    dragonfly: {
+      host: string
+      port: number
+      password: string
+    }
+    s3: {
+      accessKeyId: string
+      secretAccessKey: string
+      endpoint: string
+      bucket: string
+      region: string
+      publicUrl: string
+    }
+    polar: {
+      accessToken: string
+      checkoutSuccessUrl: string
+      server: 'live' | 'sandbox'
+      webhookSecret: string
+    }
+    imgproxy: {
+      storageUrl: string
+      cdnDomains: string[]
+    }
+    storage: {
+      redis: boolean
+      s3: boolean
+      disk: boolean
+    }
+  }
+
+  interface PublicRuntimeConfig {
+    siteUrl: string
+    debug: boolean
+    imgproxy: {
+      storageUrl: string
+      cdnDomains: string[]
+    }
+  }
 }
-declare module '@nuxt/schema' {
-  interface AppConfig extends BreadcrumbsConfig, SetupConfig { }
-}
+
+// declare module '@nuxt/schema' {
+//   interface AppConfig extends BreadcrumbsConfig, SetupConfig { }
+
+// }
 
 export default defineNuxtModule({
   meta: {
@@ -235,9 +276,7 @@ export {}
       maxAge: 0,
     })
 
-    const componentDir = resolve('./runtime/components/ui')
-
-    nuxt.hook('tailwindcss:sources:extend', (sources) => {
+    nuxt.hook('tailwindcss:sources:extend' as any, (sources: any[]) => {
       sources.push({
         source: `${resolve('./runtime/components')}`,
         type: 'path',
@@ -292,13 +331,13 @@ export {}
     })
 
     // Configure color mode
-    nuxt.options.colorMode = {
+    ;(nuxt.options as any).colorMode = {
       classSuffix: '',
       fallback: 'light',
       storageKey: 'abckit-color-mode',
       preference: 'light',
       hid: 'nuxt-color-mode-script',
-    } as unknown as typeof nuxt.options.colorMode
+    }
 
     // Register composables auto-imports
     addImportsDir(resolve('./runtime/composables'))
