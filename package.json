@@ -69,6 +69,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/vue-table": "^8.21.3",
     "@vee-validate/nuxt": "^4.15.1",
+    "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^14.1.0",
     "@vueuse/nuxt": "^14.1.0",
     "@vueuse/router": "^14.1.0",
@@ -108,6 +109,7 @@
     "vue": "^3.5.25",
     "vue-input-otp": "^0.3.2",
     "vue-router": "^4.6.3",
+    "vue-sonner": "^2.0.9",
     "vue-tsc": "^3.1.5",
     "zod": "^4.1.13"
   },
