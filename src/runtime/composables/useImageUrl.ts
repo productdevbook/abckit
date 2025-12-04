@@ -1,3 +1,5 @@
+import { useRuntimeConfig } from '#app'
+
 export type ImageSize
   = | 'raw'
     | 'xs'

@@ -1,6 +1,7 @@
 import { navigateTo } from '#app'
 import { adminClient } from 'better-auth/client/plugins'
-import { createAuthClient } from 'better-auth/vue'
+import { createAuthpClient } from 'better-auth/vue'
+import { computed } from 'vue'
 
 // Create Better Auth client with admin plugin
 const authClient = createAuthClient({

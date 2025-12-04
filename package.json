@@ -46,6 +46,7 @@
     "dist"
   ],
   "scripts": {
+    "build": "nuxt-module-build build",
     "prepack": "nuxt-module-build build",
     "dev": "nuxt dev playground",
     "dev:build": "nuxi build playground",
