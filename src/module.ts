@@ -339,34 +339,7 @@ export {}
       global: true,
     })
 
-    addComponentsDir({
-      path: componentDir,
-      extensions: [],
-      ignore: ['**/*'],
-    }, {
-      prepend: true,
-    })
-
-    try {
-      await Promise.all(readdirSync(componentDir).map(async (dir) => {
-        try {
-          const filePath = await resolvePath(join(componentDir, dir, 'index'), { extensions: ['.ts', '.js'] })
-
-          addComponentExports({
-            prefix: '',
-            filePath: resolve(filePath),
-            priority: 1,
-          })
-        }
-        catch (err) {
-          if (err instanceof Error)
-            console.warn('Module error: ', err.message)
-        }
-      }))
-    }
-    catch (err) {
-      if (err instanceof Error)
-        console.warn(err.message)
-    }
+    // Components are NOT auto-imported
+    // Import manually: import { Button } from 'abckit/shadcn/button'
   },
 })
