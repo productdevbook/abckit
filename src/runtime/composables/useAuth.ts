@@ -8,41 +8,29 @@ const authClient = createAuthClient({
   plugins: [adminClient()],
 })
 
-// Sentry'yi lazy load et (sadece aktifse)
-function setSentryUser(user: { id: string } | null) {
-  const config = useRuntimeConfig()
-  if (!config.public.abckit?.sentry) {
-    return
-  }
-
-  import('@sentry/nuxt')
-    .then((Sentry) => {
-      Sentry.setUser(user)
-    })
-    .catch(() => {
-      // Sentry not installed, skip
-    })
-}
-
 /**
  * Main authentication composable for Better Auth
  */
 export function useAuth() {
   const session = authClient.useSession()
+  const config = useRuntimeConfig()
 
   const isLoading = computed(() => session.value.isPending)
   const isAuthenticated = computed(() => !!session.value.data?.user)
   const user = computed(() => session.value.data?.user || null)
 
   // Sentry kullanıcı bilgilerini senkronize et (optional)
-  watch(user, (currentUser) => {
-    if (currentUser) {
-      setSentryUser({ id: currentUser.id })
-    }
-    else {
-      setSentryUser(null)
-    }
-  }, { immediate: true })
+  if (config.public.abckit?.sentry) {
+    watch(user, async (currentUser) => {
+      const Sentry = await import('@sentry/nuxt')
+      if (currentUser) {
+        Sentry.setUser({ id: currentUser.id })
+      }
+      else {
+        Sentry.setUser(null)
+      }
+    }, { immediate: true })
+  }
 
   function login(returnTo?: string) {
     const query = returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''
