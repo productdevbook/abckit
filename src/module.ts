@@ -94,8 +94,8 @@ declare module 'nuxt/schema' {
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'nuxtShared',
-    configKey: 'nuxtShared',
+    name: 'abckit',
+    configKey: 'abckit',
     version: '0.0.1',
   },
   defaults: {
