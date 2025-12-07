@@ -1,7 +1,7 @@
 {
   "name": "abckit",
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "private": false,
   "sideEffects": false,
   "exports": {
@@ -52,7 +52,8 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
+    "release": "pnpm publish --no-git-checks --access public"
   },
   "dependencies": {
     "@graphql-tools/utils": "^10.11.0",
@@ -65,6 +66,7 @@
     "@pinia/colada-nuxt": "^0.2.4",
     "@pinia/nuxt": "^0.11.3",
     "@polar-sh/sdk": "^0.41.5",
+    "@sentry/nuxt": "catalog:",
     "@sindresorhus/slugify": "^3.0.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/vue-table": "^8.21.3",

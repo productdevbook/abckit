@@ -32,6 +32,14 @@ export interface SetupConfig {
   }
 }
 
+export interface ModuleOptions {
+  /**
+   * Enable Sentry user tracking in useAuth composable
+   * @default false
+   */
+  sentry?: boolean
+}
+
 declare module 'nuxt/schema' {
   interface AppConfig extends BreadcrumbsConfig, SetupConfig { }
 
@@ -73,6 +81,9 @@ declare module 'nuxt/schema' {
       storageUrl: string
       cdnDomains: string[]
     }
+    abckit: {
+      sentry: boolean
+    }
   }
 }
 
@@ -81,11 +92,14 @@ declare module 'nuxt/schema' {
 
 // }
 
-export default defineNuxtModule({
+export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxtShared',
     configKey: 'nuxtShared',
     version: '0.0.1',
+  },
+  defaults: {
+    sentry: false,
   },
   moduleDependencies: {
     '@nuxtjs/tailwindcss': {},
@@ -98,8 +112,15 @@ export default defineNuxtModule({
     '@vee-validate/nuxt': {},
     'nitro-graphql/nuxt': {},
   },
-  async setup(_options, nuxt) {
+  async setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
+
+    // Sentry konfigürasyonunu public runtime config'e ekle
+    nuxt.options.runtimeConfig.public = defu(nuxt.options.runtimeConfig.public, {
+      abckit: {
+        sentry: options.sentry ?? false,
+      },
+    })
 
     nuxt.options.runtimeConfig.dragonfly = defu(nuxt.options.runtimeConfig.dragonfly, {
       host: 'dragonfly',
