@@ -1,7 +1,7 @@
 import type { NitroGraphQLOptions } from 'nitro-graphql'
 import type { BreadcrumbItemProps } from './runtime/composables/useBreadcrumbItems'
 import { join } from 'node:path'
-import { addImportsDir, addRouteMiddleware, addServerScanDir, addTypeTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { addRouteMiddleware, addServerScanDir, addTypeTemplate, createResolver, defineNuxtModule, importModule } from '@nuxt/kit'
 import { defu } from 'defu'
 
 export interface BreadcrumbsConfig {
@@ -101,7 +101,7 @@ export default defineNuxtModule<ModuleOptions>({
   defaults: {
     sentry: false,
   },
-  moduleDependencies: {
+  moduleDependencies: nuxt => ({
     '@nuxtjs/tailwindcss': {},
     'notivue/nuxt': {},
     '@nuxt/icon': {},
@@ -111,7 +111,10 @@ export default defineNuxtModule<ModuleOptions>({
     '@pinia/nuxt': {},
     '@vee-validate/nuxt': {},
     'nitro-graphql/nuxt': {},
-  },
+    '@sentry/nuxt/module': {
+      optional: nuxt.options.dev,
+    },
+  }),
   async setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
 
