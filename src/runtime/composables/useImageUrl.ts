@@ -11,6 +11,7 @@ export type ImageSize
     | '2k'
     | 'profile50'
     | 'profile75'
+    | 'instagram'
 
 interface ImageSizeConfig {
   path: string
@@ -57,6 +58,10 @@ const imageSizes: Record<ImageSize, ImageSizeConfig> = {
   'profile75': {
     path: 's:150:150/rt:fill/f:avif',
     description: 'Profile medium AVIF (150x150)',
+  },
+  'instagram': {
+    path: 's:10000:10000/rt:fit/q:90/f:jpg',
+    description: 'Instagram optimized JPEG (original size, 90% quality)',
   },
 }
 
