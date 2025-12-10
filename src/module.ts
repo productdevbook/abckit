@@ -48,6 +48,7 @@ declare module 'nuxt/schema' {
       host: string
       port: number
       password: string
+      url?: string
     }
     s3: {
       accessKeyId: string
@@ -129,6 +130,7 @@ export default defineNuxtModule<ModuleOptions>({
       host: 'dragonfly',
       port: Number.parseInt('6379', 10),
       password: '',
+      url: '',
     })
 
     nuxt.options.runtimeConfig.s3 = defu(nuxt.options.runtimeConfig.s3, {
