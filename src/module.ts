@@ -1,7 +1,7 @@
 import type { NitroGraphQLOptions } from 'nitro-graphql'
 import type { BreadcrumbItemProps } from './runtime/composables/useBreadcrumbItems'
 import { join } from 'node:path'
-import { addRouteMiddleware, addServerScanDir, addTypeTemplate, createResolver, defineNuxtModule, importModule } from '@nuxt/kit'
+import { addRouteMiddleware, addServerScanDir, addTypeTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
 import { defu } from 'defu'
 
 export interface BreadcrumbsConfig {
@@ -338,7 +338,6 @@ export {}
     excludeSet.add('zod')
     excludeSet.add('date-fns')
     excludeSet.add('date-fns/locale')
-    excludeSet.add('lucide-vue-next')
     excludeSet.add('class-variance-authority')
     excludeSet.add('reka-ui')
     excludeSet.add('clsx')

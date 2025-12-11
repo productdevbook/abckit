@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { Icon } from '#components'
 import { SidebarMenuButton, useSidebar } from 'abckit/shadcn/sidebar'
-import { Shield } from 'lucide-vue-next'
 
 interface Props {
   tenant?: {
@@ -19,7 +19,7 @@ const { state } = useSidebar()
     class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
   >
     <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-      <Shield class="h-4 w-4" />
+      <Icon name="lucide:shield" class="h-4 w-4" />
     </div>
     <div
       v-show="state !== 'collapsed'"

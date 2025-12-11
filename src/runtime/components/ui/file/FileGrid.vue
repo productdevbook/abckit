@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { FileType } from 'abckit/types/client'
-import { Cloud, FileText, Film, Folder, Image } from 'lucide-vue-next'
 import { bytesToSize } from 'abckit/shared/constants/r2'
-import type { Component } from 'vue'
 import { AppImage } from 'abckit/components/app'
+import { Icon } from '#components'
 
 interface FileItem {
   id: string
@@ -43,14 +42,14 @@ const emit = defineEmits<{
 }>()
 
 // File type icons
-const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', Component> = {
-  IMAGE: Image,
-  VIDEO: Film,
-  AUDIO: FileText,
-  DOCUMENT: FileText,
-  ARCHIVE: Cloud,
-  OTHER: Cloud,
-  FOLDER: Folder,
+const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', string> = {
+  IMAGE: 'lucide:image',
+  VIDEO: 'lucide:film',
+  AUDIO: 'lucide:file-text',
+  DOCUMENT: 'lucide:file-text',
+  ARCHIVE: 'lucide:cloud',
+  OTHER: 'lucide:cloud',
+  FOLDER: 'lucide:folder',
 }
 
 function getFileIcon(file: FileItem) {
@@ -108,8 +107,8 @@ function isSelected(fileId: string): boolean {
           fallback=""
         />
         <div v-else class="flex h-full items-center justify-center">
-          <component
-            :is="getFileIcon(file)"
+          <Icon
+            :name="getFileIcon(file)"
             class="h-12 w-12 text-muted-foreground"
           />
         </div>

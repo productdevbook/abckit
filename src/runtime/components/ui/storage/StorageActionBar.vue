@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import type { FileType } from 'abckit/types/client'
-import { FolderPlus, Search } from 'lucide-vue-next'
+import { Icon } from '#components'
 import { Button } from 'abckit/shadcn/button'
 import { Input } from 'abckit/shadcn/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'abckit/shadcn/select'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'abckit/shadcn/tooltip'
-import { Icon } from '#components'
 import { computed } from 'vue'
 
 type ViewMode = 'grid' | 'list'
@@ -58,7 +57,7 @@ const selectedTypeModel = computed({
   <div class="flex gap-2">
     <!-- Search -->
     <div class="relative flex-1">
-      <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Icon name="lucide:search" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         v-model="searchModel"
         placeholder="Dosya ara..."
@@ -121,7 +120,7 @@ const selectedTypeModel = computed({
       <Tooltip>
         <TooltipTrigger as-child>
           <Button variant="outline" size="icon" class="h-10 w-10" @click="emit('create-folder')">
-            <FolderPlus class="h-4 w-4" />
+            <Icon name="lucide:folder-plus" class="h-4 w-4" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>

@@ -2,7 +2,7 @@
 import type { Config, ConfigItem } from './interface'
 import { Button } from 'abckit/shadcn/button'
 import { FormItem, FormMessage } from 'abckit/shadcn/form'
-import { PlusIcon, TrashIcon } from 'lucide-vue-next'
+import { Icon } from '#components'
 import { FieldArray, FieldContextKey, useField } from 'vee-validate'
 import { computed, provide } from 'vue'
 import * as z from 'zod'
@@ -117,7 +117,7 @@ function getEmptyValueForZodType(schema: z.ZodTypeAny | undefined): any {
                   class="h-8 w-8 p-0 text-destructive hover:text-destructive"
                   @click="remove(index)"
                 >
-                  <TrashIcon :size="14" />
+                  <Icon name="lucide:trash" class="size-3.5" />
                 </Button>
               </div>
               
@@ -138,7 +138,7 @@ function getEmptyValueForZodType(schema: z.ZodTypeAny | undefined): any {
             :disabled="disabled"
             @click="push(getEmptyValueForZodType(itemShape?.schema))"
           >
-            <PlusIcon :size="16" />
+            <Icon name="lucide:plus" class="size-4" />
             {{ `Add ${beautifyObjectName(fieldName.replace(/s$/, ''))}` }}
           </Button>
         </div>

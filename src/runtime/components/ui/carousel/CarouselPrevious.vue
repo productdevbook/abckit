@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { WithClassAsProps } from "./interface"
 import type { ButtonVariants } from 'abckit/shadcn/button'
-import { ArrowLeft } from "lucide-vue-next"
+import { Icon } from '#components'
 import { cn } from 'abckit/utils'
 import { Button } from 'abckit/shadcn/button'
 import { useCarousel } from "./useCarousel"
@@ -34,7 +34,7 @@ const { orientation, canScrollPrev, scrollPrev } = useCarousel()
     @click="scrollPrev"
   >
     <slot>
-      <ArrowLeft />
+      <Icon name="lucide:arrow-left" />
       <span class="sr-only">Previous Slide</span>
     </slot>
   </Button>

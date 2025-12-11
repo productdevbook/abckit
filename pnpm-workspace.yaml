@@ -1,29 +1,22 @@
-packages:
-  - ./
-  - playground
-
-catalog:
-  '@sentry/nuxt': ^10.29.0
-
 catalogMode: prefer
 
 cleanupUnusedCatalogs: true
+
+shellEmulator: true
+
+trustPolicy: no-downgrade
+
+trustPolicyExclude:
+  - '@nuxtjs/tailwindcss@7.0.0-beta.1'
+  - chokidar@4.0.3
+  - '@noble/ciphers@2.0.1'
+  - '@graphql-tools/*'
+  - semver@6.3.1
+  - playground
+patchedDependencies:
+  entities@7.0.0: patches/entities@7.0.0.patch
 
 onlyBuiltDependencies:
   - '@tailwindcss/oxide'
   - better-sqlite3
   - sharp
-
-patchedDependencies:
-  entities@7.0.0: patches/entities@7.0.0.patch
-
-shellEmulator: true
-
-trustPolicy: no-downgrade
-trustPolicyExclude:
-  - '@nuxtjs/tailwindcss@7.0.0-beta.1'
-  - 'chokidar@4.0.3'
-  - '@noble/ciphers@2.0.1'
-  - '@graphql-tools/*'
-  - 'semver@6.3.1'
-  - 'ua-parser-js@1.0.41'

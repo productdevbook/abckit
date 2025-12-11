@@ -4,7 +4,8 @@
  * Convert bytes to human-readable size string
  */
 export function bytesToSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
+  if (bytes === 0)
+    return '0 B'
 
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -24,10 +25,15 @@ export function getFileExtension(filename: string): string {
  * Get MIME type category
  */
 export function getMimeTypeCategory(mimeType: string): 'image' | 'video' | 'audio' | 'document' | 'archive' | 'other' {
-  if (mimeType.startsWith('image/')) return 'image'
-  if (mimeType.startsWith('video/')) return 'video'
-  if (mimeType.startsWith('audio/')) return 'audio'
-  if (mimeType.includes('pdf') || mimeType.includes('document') || mimeType.includes('text/')) return 'document'
-  if (mimeType.includes('zip') || mimeType.includes('tar') || mimeType.includes('rar') || mimeType.includes('7z')) return 'archive'
+  if (mimeType.startsWith('image/'))
+    return 'image'
+  if (mimeType.startsWith('video/'))
+    return 'video'
+  if (mimeType.startsWith('audio/'))
+    return 'audio'
+  if (mimeType.includes('pdf') || mimeType.includes('document') || mimeType.includes('text/'))
+    return 'document'
+  if (mimeType.includes('zip') || mimeType.includes('tar') || mimeType.includes('rar') || mimeType.includes('7z'))
+    return 'archive'
   return 'other'
 }

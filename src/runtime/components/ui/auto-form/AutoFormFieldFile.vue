@@ -3,7 +3,7 @@ import type { FieldProps } from './interface'
 import { Button } from 'abckit/shadcn/button'
 import { FormControl, FormDescription, FormField, FormItem, FormMessage } from 'abckit/shadcn/form'
 import { Input } from 'abckit/shadcn/input'
-import { Trash } from 'lucide-vue-next'
+import { Icon } from '#components'
 import { ref } from 'vue'
 import AutoFormLabel from './AutoFormLabel.vue'
 import { beautifyObjectName } from './utils'
@@ -60,7 +60,7 @@ async function parseFileAsString(file: File | undefined): Promise<string> {
                 slotProps.componentField.onInput(undefined)
               }"
             >
-              <Trash />
+              <Icon name="lucide:trash" />
             </Button>
           </div>
         </slot>

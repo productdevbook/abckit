@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Cloud, Trash2 } from 'lucide-vue-next'
+import { Icon } from '#components'
 
 interface Props {
   searchQuery?: string
@@ -33,7 +33,7 @@ function handleUploadClick() {
       class="relative rounded-full bg-muted p-8 mb-4 cursor-pointer transition-transform hover:scale-105"
       @click="handleUploadClick"
     >
-      <Cloud class="h-16 w-16 text-muted-foreground" />
+      <Icon name="lucide:cloud" class="h-16 w-16 text-muted-foreground" />
       <input
         v-if="!onUploadClick"
         type="file"
@@ -43,7 +43,7 @@ function handleUploadClick() {
       />
     </div>
     <div v-else-if="!searchQuery" class="rounded-full bg-muted p-8 mb-4">
-      <Trash2 class="h-16 w-16 text-muted-foreground" />
+      <Icon name="lucide:trash-2" class="h-16 w-16 text-muted-foreground" />
     </div>
     <div v-else class="rounded-full bg-muted p-8 mb-4">
       <Icon name="lucide:search-x" class="h-16 w-16 text-muted-foreground" />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LucideIcon } from 'lucide-vue-next'
+import { Icon } from '#components'
 import {
   Collapsible,
   CollapsibleContent,
@@ -15,13 +15,12 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from 'abckit/shadcn/sidebar'
-import { ChevronRight } from 'lucide-vue-next'
 
 defineProps<{
   items: {
     title: string
     url: string
-    icon?: LucideIcon
+    icon?: string
     isActive?: boolean
     items?: {
       title: string
@@ -50,7 +49,7 @@ defineProps<{
           <template v-if="!item.items">
             <SidebarMenuButton as-child :tooltip="item.title">
               <NuxtLink :to="item.url">
-                <component :is="item.icon" v-if="item.icon" />
+                <Icon v-if="item.icon" :name="item.icon" />
                 <span>{{ item.title }}</span>
               </NuxtLink>
             </SidebarMenuButton>
@@ -58,9 +57,9 @@ defineProps<{
           <template v-else>
             <CollapsibleTrigger as-child>
               <SidebarMenuButton :tooltip="item.title">
-                <component :is="item.icon" v-if="item.icon" />
+                <Icon v-if="item.icon" :name="item.icon" />
                 <span>{{ item.title }}</span>
-                <ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                <Icon name="lucide:chevron-right" class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
               </SidebarMenuButton>
             </CollapsibleTrigger>
             <CollapsibleContent>

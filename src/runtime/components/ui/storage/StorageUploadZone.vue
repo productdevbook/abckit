@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Upload } from 'lucide-vue-next'
+import { Icon } from '#components'
 import { ref } from 'vue'
 
 interface Props {
@@ -62,9 +62,10 @@ function handleClick() {
       @change="handleFileInput"
     >
     
-    <Upload 
-      class="mx-auto h-10 w-10 transition-colors" 
-      :class="isDragging ? 'text-primary' : 'text-muted-foreground'" 
+    <Icon
+      name="lucide:upload"
+      class="mx-auto h-10 w-10 transition-colors"
+      :class="isDragging ? 'text-primary' : 'text-muted-foreground'"
     />
     
     <p class="mt-3 text-base font-medium transition-colors" :class="isDragging ? 'text-primary' : 'text-foreground'">

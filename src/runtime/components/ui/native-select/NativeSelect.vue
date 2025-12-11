@@ -2,7 +2,7 @@
 import type { AcceptableValue } from "reka-ui"
 import type { HTMLAttributes } from "vue"
 import { reactiveOmit, useVModel } from "@vueuse/core"
-import { ChevronDownIcon } from "lucide-vue-next"
+import { Icon } from '#components'
 import { cn } from 'abckit/utils'
 
 defineOptions({
@@ -41,7 +41,8 @@ const delegatedProps = reactiveOmit(props, "class")
     >
       <slot />
     </select>
-    <ChevronDownIcon
+    <Icon
+      name="lucide:chevron-down"
       class="text-muted-foreground pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 opacity-50 select-none"
       aria-hidden="true"
       data-slot="native-select-icon"

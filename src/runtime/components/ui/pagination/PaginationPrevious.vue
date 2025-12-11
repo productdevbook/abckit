@@ -3,7 +3,7 @@ import type { PaginationPrevProps } from "reka-ui"
 import type { HTMLAttributes } from "vue"
 import type { ButtonVariants } from 'abckit/shadcn/button'
 import { reactiveOmit } from "@vueuse/core"
-import { ChevronLeftIcon } from "lucide-vue-next"
+import { Icon } from '#components'
 import { PaginationPrev, useForwardProps } from "reka-ui"
 import { cn } from 'abckit/utils'
 import { buttonVariants } from 'abckit/shadcn/button'
@@ -26,7 +26,7 @@ const forwarded = useForwardProps(delegatedProps)
     v-bind="forwarded"
   >
     <slot>
-      <ChevronLeftIcon />
+      <Icon name="lucide:chevron-left" />
       <span class="hidden sm:block">Previous</span>
     </slot>
   </PaginationPrev>

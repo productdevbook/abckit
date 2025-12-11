@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RotateCcw, Trash2 } from 'lucide-vue-next'
+import { Icon } from '#components'
 import { Button } from 'abckit/shadcn/button'
 
 interface Props {
@@ -45,7 +45,7 @@ const emit = defineEmits<{
       size="sm"
       @click="emit('restore-selected')"
     >
-      <RotateCcw class="mr-2 h-4 w-4" />
+      <Icon name="lucide:rotate-ccw" class="mr-2 h-4 w-4" />
       Geri Yükle ({{ selectedCount }})
     </Button>
     
@@ -55,7 +55,7 @@ const emit = defineEmits<{
       size="sm"
       @click="emit('delete-selected')"
     >
-      <Trash2 class="mr-2 h-4 w-4" />
+      <Icon name="lucide:trash-2" class="mr-2 h-4 w-4" />
       {{ isTrash ? 'Kalıcı Olarak' : '' }} Sil ({{ selectedCount }})
     </Button>
   </div>

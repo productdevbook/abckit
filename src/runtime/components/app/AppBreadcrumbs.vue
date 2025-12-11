@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { BreadcrumbItemProps } from 'abckit/composables/useBreadcrumbItems'
-import { useAppConfig, useRoute } from '#app'
+import { useAppConfig } from '#app'
 import { NuxtLink } from '#components'
 import { useBreadcrumbItems } from 'abckit/composables/useBreadcrumbItems'
 import {
@@ -13,7 +13,6 @@ import {
 } from 'abckit/shadcn/breadcrumb'
 import { computed } from 'vue'
 
-const route = useRoute()
 const appConfig = useAppConfig()
 
 // Get breadcrumb config from app.config.ts

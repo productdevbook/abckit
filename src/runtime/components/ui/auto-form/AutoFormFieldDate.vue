@@ -7,7 +7,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormMessage } from '
 import { Popover, PopoverContent, PopoverTrigger } from 'abckit/shadcn/popover'
 
 import { DateFormatter, getLocalTimeZone } from '@internationalized/date'
-import { CalendarIcon } from 'lucide-vue-next'
+import { Icon } from '#components'
 import AutoFormLabel from './AutoFormLabel.vue'
 import { beautifyObjectName, maybeBooleanishToBoolean } from './utils'
 
@@ -36,7 +36,7 @@ const df = new DateFormatter('en-US', {
                     !slotProps.componentField.modelValue && 'text-muted-foreground',
                   )"
                 >
-                  <CalendarIcon class="mr-2 h-4 w-4" />
+                  <Icon name="lucide:calendar" class="mr-2 h-4 w-4" />
                   {{ slotProps.componentField.modelValue ? df.format(slotProps.componentField.modelValue.toDate(getLocalTimeZone())) : "Pick a date" }}
                 </Button>
               </PopoverTrigger>

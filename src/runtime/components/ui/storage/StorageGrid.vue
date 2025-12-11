@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import type { FileType } from 'abckit/types/client'
-import { Cloud, FileText, Film, Folder, Image, MoreVertical } from 'lucide-vue-next'
 import { bytesToSize } from 'abckit/shared/constants/r2'
 import { Button } from 'abckit/shadcn/button'
 import { Checkbox } from 'abckit/shadcn/checkbox'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from 'abckit/shadcn/dropdown-menu'
 import { AppImage } from 'abckit/components/app'
 import { Icon } from '#components'
-import type { Component } from 'vue'
 
 interface FileItem {
   id: string
@@ -49,14 +47,14 @@ const emit = defineEmits<{
 }>()
 
 // File type icons
-const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', Component> = {
-  IMAGE: Image,
-  VIDEO: Film,
-  AUDIO: FileText,
-  DOCUMENT: FileText,
-  ARCHIVE: Cloud,
-  OTHER: Cloud,
-  FOLDER: Folder,
+const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', string> = {
+  IMAGE: 'lucide:image',
+  VIDEO: 'lucide:film',
+  AUDIO: 'lucide:file-text',
+  DOCUMENT: 'lucide:file-text',
+  ARCHIVE: 'lucide:cloud',
+  OTHER: 'lucide:cloud',
+  FOLDER: 'lucide:folder',
 }
 
 function getFileIcon(file: FileItem) {
@@ -111,8 +109,8 @@ function isSelected(fileId: string): boolean {
           fallback=""
         />
         <div v-else class="flex h-full items-center justify-center">
-          <component
-            :is="getFileIcon(file)"
+          <Icon
+            :name="getFileIcon(file)"
             class="h-12 w-12 text-muted-foreground"
           />
         </div>
@@ -141,7 +139,7 @@ function isSelected(fileId: string): boolean {
               class="h-8 w-8 bg-background/80 backdrop-blur-sm"
               @click.stop
             >
-              <MoreVertical class="h-4 w-4" />
+              <Icon name="lucide:more-vertical" class="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

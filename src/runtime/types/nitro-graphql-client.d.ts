@@ -5,4 +5,3 @@ export type FileType = 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT' | 'ARCHIVE' | 'O
 
 // Re-export for convenience
 export type { FileType as StorageFileType }
-

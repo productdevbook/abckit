@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FileType } from 'abckit/types/client'
-import { Cloud, Download, Eye, FileText, Film, Folder, Image, MoreVertical, RotateCcw, Trash2 } from 'lucide-vue-next'
 import { bytesToSize } from 'abckit/shared/constants/r2'
 import { Badge } from 'abckit/shadcn/badge'
 import { Button } from 'abckit/shadcn/button'
@@ -9,7 +8,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'abckit/shadcn/table'
 import { AppImage } from 'abckit/components/app'
 import { Icon } from '#components'
-import type { Component } from 'vue'
 import { computed } from 'vue'
 
 interface FileItem {
@@ -58,14 +56,14 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 // File type icons
-const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', Component> = {
-  IMAGE: Image,
-  VIDEO: Film,
-  AUDIO: FileText,
-  DOCUMENT: FileText,
-  ARCHIVE: Cloud,
-  OTHER: Cloud,
-  FOLDER: Folder,
+const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', string> = {
+  IMAGE: 'lucide:image',
+  VIDEO: 'lucide:film',
+  AUDIO: 'lucide:file-text',
+  DOCUMENT: 'lucide:file-text',
+  ARCHIVE: 'lucide:cloud',
+  OTHER: 'lucide:cloud',
+  FOLDER: 'lucide:folder',
 }
 
 // File type labels
@@ -167,9 +165,9 @@ const someSelected = computed(() =>
                   class="h-full w-full"
                   fallback=""
                 />
-                <component
-                  :is="getFileIcon(file)"
+                <Icon
                   v-else
+                  :name="getFileIcon(file)"
                   class="h-5 w-5 text-muted-foreground"
                 />
               </div>
@@ -199,7 +197,7 @@ const someSelected = computed(() =>
                   class="h-8 w-8"
                   @click.stop
                 >
-                  <MoreVertical class="h-4 w-4" />
+                  <Icon name="lucide:more-vertical" class="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -223,17 +221,17 @@ const someSelected = computed(() =>
                       class="text-destructive focus:text-destructive"
                       @click.stop="onDelete(file)"
                     >
-                      <Trash2 class="mr-2 h-4 w-4" />
+                      <Icon name="lucide:trash-2" class="mr-2 h-4 w-4" />
                       Sil
                     </DropdownMenuItem>
                   </template>
                   <template v-else>
                     <DropdownMenuItem v-if="onView" @click.stop="onView(file)">
-                      <Eye class="mr-2 h-4 w-4" />
+                      <Icon name="lucide:eye" class="mr-2 h-4 w-4" />
                       Görüntüle
                     </DropdownMenuItem>
                     <DropdownMenuItem v-if="onDownload" @click.stop="onDownload(file)">
-                      <Download class="mr-2 h-4 w-4" />
+                      <Icon name="lucide:download" class="mr-2 h-4 w-4" />
                       İndir
                     </DropdownMenuItem>
                     <DropdownMenuItem v-if="onRename" @click.stop="onRename(file)">
@@ -250,14 +248,14 @@ const someSelected = computed(() =>
                       class="text-destructive focus:text-destructive"
                       @click.stop="onDelete(file)"
                     >
-                      <Trash2 class="mr-2 h-4 w-4" />
+                      <Icon name="lucide:trash-2" class="mr-2 h-4 w-4" />
                       Çöp Kutusuna Taşı
                     </DropdownMenuItem>
                   </template>
                 </template>
                 <template v-else>
                   <DropdownMenuItem v-if="onRestore" @click.stop="onRestore(file)">
-                    <RotateCcw class="mr-2 h-4 w-4" />
+                    <Icon name="lucide:rotate-ccw" class="mr-2 h-4 w-4" />
                     Geri Yükle
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -266,7 +264,7 @@ const someSelected = computed(() =>
                     class="text-destructive focus:text-destructive"
                     @click.stop="onDelete(file)"
                   >
-                    <Trash2 class="mr-2 h-4 w-4" />
+                    <Icon name="lucide:trash-2" class="mr-2 h-4 w-4" />
                     Kalıcı Olarak Sil
                   </DropdownMenuItem>
                 </template>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Cloud, Trash2, Upload } from 'lucide-vue-next'
 import { Icon } from '#components'
 import { ref } from 'vue'
 
@@ -45,9 +44,9 @@ function handleFileInput(event: Event) {
         class="hidden"
         @change="handleFileInput"
       >
-      <Upload v-if="type === 'empty' && showUpload" class="h-16 w-16 text-muted-foreground" />
-      <Cloud v-else-if="type === 'empty'" class="h-16 w-16 text-muted-foreground" />
-      <Trash2 v-else-if="type === 'trash'" class="h-16 w-16 text-muted-foreground" />
+      <Icon v-if="type === 'empty' && showUpload" name="lucide:upload" class="h-16 w-16 text-muted-foreground" />
+      <Icon v-else-if="type === 'empty'" name="lucide:cloud" class="h-16 w-16 text-muted-foreground" />
+      <Icon v-else-if="type === 'trash'" name="lucide:trash-2" class="h-16 w-16 text-muted-foreground" />
       <Icon v-else name="lucide:search-x" class="h-16 w-16 text-muted-foreground" />
     </div>
 

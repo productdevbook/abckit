@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FileType } from 'abckit/types/client'
-import { Cloud, FileText, Film, Folder, Image, MoreVertical } from 'lucide-vue-next'
 import { bytesToSize } from 'abckit/shared/constants/r2'
 import { Badge } from 'abckit/shadcn/badge'
 import { Button } from 'abckit/shadcn/button'
@@ -9,7 +8,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'abckit/shadcn/table'
 import { AppImage } from 'abckit/components/app'
 import { Icon } from '#components'
-import type { Component } from 'vue'
 import { computed } from 'vue'
 
 interface FileItem {
@@ -57,14 +55,14 @@ const emit = defineEmits<{
 }>()
 
 // File type icons
-const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', Component> = {
-  IMAGE: Image,
-  VIDEO: Film,
-  AUDIO: FileText,
-  DOCUMENT: FileText,
-  ARCHIVE: Cloud,
-  OTHER: Cloud,
-  FOLDER: Folder,
+const FILE_TYPE_ICONS: Record<FileType | 'FOLDER', string> = {
+  IMAGE: 'lucide:image',
+  VIDEO: 'lucide:film',
+  AUDIO: 'lucide:file-text',
+  DOCUMENT: 'lucide:file-text',
+  ARCHIVE: 'lucide:cloud',
+  OTHER: 'lucide:cloud',
+  FOLDER: 'lucide:folder',
 }
 
 // File type labels
@@ -162,9 +160,9 @@ const someSelected = computed(() =>
                   class="h-full w-full"
                   fallback=""
                 />
-                <component
+                <Icon
                   v-else
-                  :is="getFileIcon(file)"
+                  :name="getFileIcon(file)"
                   class="h-5 w-5 text-muted-foreground"
                 />
               </div>
@@ -194,7 +192,7 @@ const someSelected = computed(() =>
                   class="h-8 w-8"
                   @click.stop
                 >
-                  <MoreVertical class="h-4 w-4" />
+                  <Icon name="lucide:more-vertical" class="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
