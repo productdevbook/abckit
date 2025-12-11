@@ -1,7 +1,7 @@
 {
   "name": "abckit",
   "type": "module",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "private": false,
   "sideEffects": false,
   "exports": {
@@ -66,7 +66,7 @@
     "@pinia/colada-nuxt": "^0.2.4",
     "@pinia/nuxt": "^0.11.3",
     "@polar-sh/sdk": "^0.41.5",
-    "@sentry/nuxt": "catalog:",
+    "@sentry/nuxt": "^10.29.0",
     "@sindresorhus/slugify": "^3.0.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/vue-table": "^8.21.3",
