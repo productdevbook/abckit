@@ -32,12 +32,26 @@ export interface SetupConfig {
   }
 }
 
+export interface AuthClientOptions {
+  /**
+   * Base URL for Better Auth client
+   * Required for Capacitor/mobile apps where the default URL is not http/https
+   * @example 'https://api.example.com'
+   */
+  baseURL?: string
+}
+
 export interface ModuleOptions {
   /**
    * Enable Sentry user tracking in useAuth composable
    * @default false
    */
   sentry?: boolean
+
+  /**
+   * Better Auth client configuration
+   */
+  auth?: AuthClientOptions
 }
 
 declare module 'nuxt/schema' {
@@ -84,6 +98,9 @@ declare module 'nuxt/schema' {
     }
     abckit: {
       sentry: boolean
+      auth: {
+        baseURL?: string
+      }
     }
   }
 }
@@ -119,12 +136,13 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
 
-    // Sentry konfigürasyonunu public runtime config'e ekle
-    nuxt.options.runtimeConfig.public = defu(nuxt.options.runtimeConfig.public, {
-      abckit: {
-        sentry: options.sentry ?? false,
+    // abckit konfigürasyonunu public runtime config'e ekle
+    nuxt.options.runtimeConfig.public.abckit = {
+      sentry: nuxt.options.runtimeConfig.public.abckit?.sentry ?? options.sentry ?? false,
+      auth: {
+        baseURL: nuxt.options.runtimeConfig.public.abckit?.auth?.baseURL ?? options.auth?.baseURL,
       },
-    })
+    }
 
     nuxt.options.runtimeConfig.dragonfly = defu(nuxt.options.runtimeConfig.dragonfly, {
       host: 'dragonfly',

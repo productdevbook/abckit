@@ -1,18 +1,33 @@
-import { navigateTo, useRuntimeConfig } from '#app'
+import { navigateTo, useNuxtApp, useRuntimeConfig } from '#app'
 import { adminClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/vue'
 import { computed, watch } from 'vue'
 
-// Create Better Auth client with admin plugin
-const authClient = createAuthClient({
-  plugins: [adminClient()],
-})
+// Auth client singleton - initialized lazily with runtime config
+let authClient: ReturnType<typeof createAuthClient> | null = null
+
+function getAuthClient() {
+  if (authClient)
+    return authClient
+
+  // Get runtime config for baseURL (needed for Capacitor/mobile apps)
+  const config = useRuntimeConfig()
+  const baseURL = config.public.abckit?.auth?.baseURL
+
+  authClient = createAuthClient({
+    baseURL,
+    plugins: [adminClient()],
+  })
+
+  return authClient
+}
 
 /**
  * Main authentication composable for Better Auth
  */
 export function useAuth() {
-  const session = authClient.useSession()
+  const client = getAuthClient()
+  const session = client.useSession()
   const config = useRuntimeConfig()
 
   const isLoading = computed(() => session.value.isPending)
@@ -43,12 +58,12 @@ export function useAuth() {
   }
 
   async function logout() {
-    await authClient.signOut()
+    await client.signOut()
     navigateTo('/')
   }
 
   async function refreshSession() {
-    const result = await authClient.getSession({ fetchOptions: { cache: 'no-store' } })
+    const result = await client.getSession({ fetchOptions: { cache: 'no-store' } })
     return result
   }
 
@@ -61,9 +76,19 @@ export function useAuth() {
     register,
     logout,
     refreshSession,
-    authClient,
+    authClient: client,
   }
 }
 
-export const { signIn, signUp, signOut, useSession, getSession } = authClient
-export { authClient }
+// Lazy exports - these will use the singleton once initialized
+export function getAuthClientExports() {
+  const client = getAuthClient()
+  return {
+    signIn: client.signIn,
+    signUp: client.signUp,
+    signOut: client.signOut,
+    useSession: client.useSession,
+    getSession: client.getSession,
+    authClient: client,
+  }
+}
