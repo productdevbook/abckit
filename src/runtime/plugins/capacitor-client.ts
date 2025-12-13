@@ -378,8 +378,8 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
             const authToken = context.response.headers.get('set-auth-token')
             if (authToken) {
               const prevCookie = (await Preferences.get({ key: cookieName }))?.value
-              // Store as session_token cookie format
-              const tokenCookie = `session_token=${authToken}`
+              // Store with proper cookie prefix (e.g., 'better-auth.session_token')
+              const tokenCookie = `${cookiePrefix}.session_token=${authToken}`
               const newCookie = mergeCookies(tokenCookie, prevCookie ?? undefined)
 
               if (hasSessionCookieChanged(prevCookie ?? null, newCookie)) {
