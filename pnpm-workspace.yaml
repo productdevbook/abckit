@@ -12,7 +12,6 @@ trustPolicyExclude:
   - '@noble/ciphers@2.0.1'
   - '@graphql-tools/*'
   - semver@6.3.1
-  - playground
 patchedDependencies:
   entities@7.0.0: patches/entities@7.0.0.patch
 

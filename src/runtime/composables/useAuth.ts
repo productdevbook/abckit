@@ -1,4 +1,4 @@
-import { navigateTo, useNuxtApp, useRuntimeConfig } from '#app'
+import { navigateTo, useRuntimeConfig } from '#app'
 import { adminClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/vue'
 import { computed, watch } from 'vue'
@@ -6,18 +6,58 @@ import { computed, watch } from 'vue'
 // Auth client singleton - initialized lazily with runtime config
 let authClient: ReturnType<typeof createAuthClient> | null = null
 
+// Capacitor Preferences lazy import
+let Preferences: typeof import('@capacitor/preferences').Preferences | null = null
+
+async function getPreferences() {
+  if (!Preferences) {
+    const module = await import('@capacitor/preferences')
+    Preferences = module.Preferences
+  }
+  return Preferences
+}
+
 function getAuthClient() {
   if (authClient)
     return authClient
 
-  // Get runtime config for baseURL (needed for Capacitor/mobile apps)
+  // Get runtime config for auth settings
   const config = useRuntimeConfig()
-  const baseURL = config.public.abckit?.auth?.baseURL
+  const authConfig = config.public.abckit?.auth
+  const baseURL = authConfig?.baseURL
+  const basePath = authConfig?.basePath
+  const capacitor = authConfig?.capacitor ?? false
 
-  authClient = createAuthClient({
+  // Build client options
+  const clientOptions: Parameters<typeof createAuthClient>[0] = {
     baseURL,
+    basePath,
     plugins: [adminClient()],
-  })
+  }
+
+  // Add Capacitor-specific fetch options for mobile apps
+  if (capacitor) {
+    clientOptions.fetchOptions = {
+      credentials: 'include',
+      onSuccess: async (ctx) => {
+        const authToken = ctx.response.headers.get('set-auth-token')
+        if (authToken) {
+          const prefs = await getPreferences()
+          await prefs.set({ key: 'auth_token', value: authToken })
+        }
+      },
+      auth: {
+        type: 'Bearer',
+        token: async () => {
+          const prefs = await getPreferences()
+          const result = await prefs.get({ key: 'auth_token' })
+          return result?.value || ''
+        },
+      },
+    }
+  }
+
+  authClient = createAuthClient(clientOptions)
 
   return authClient
 }
@@ -59,6 +99,13 @@ export function useAuth() {
 
   async function logout() {
     await client.signOut()
+
+    // Clear Capacitor token if in capacitor mode
+    if (config.public.abckit?.auth?.capacitor) {
+      const prefs = await getPreferences()
+      await prefs.remove({ key: 'auth_token' })
+    }
+
     navigateTo('/')
   }
 

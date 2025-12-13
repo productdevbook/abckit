@@ -39,6 +39,19 @@ export interface AuthClientOptions {
    * @example 'https://api.example.com'
    */
   baseURL?: string
+
+  /**
+   * Base path for Better Auth API endpoints
+   * @default '/api/auth'
+   */
+  basePath?: string
+
+  /**
+   * Enable Capacitor mode for mobile apps
+   * When enabled, uses Bearer token auth with @capacitor/preferences storage
+   * @default false
+   */
+  capacitor?: boolean
 }
 
 export interface ModuleOptions {
@@ -100,6 +113,8 @@ declare module 'nuxt/schema' {
       sentry: boolean
       auth: {
         baseURL?: string
+        basePath?: string
+        capacitor?: boolean
       }
     }
   }
@@ -141,6 +156,8 @@ export default defineNuxtModule<ModuleOptions>({
       sentry: nuxt.options.runtimeConfig.public.abckit?.sentry ?? options.sentry ?? false,
       auth: {
         baseURL: nuxt.options.runtimeConfig.public.abckit?.auth?.baseURL ?? options.auth?.baseURL,
+        basePath: nuxt.options.runtimeConfig.public.abckit?.auth?.basePath ?? options.auth?.basePath,
+        capacitor: nuxt.options.runtimeConfig.public.abckit?.auth?.capacitor ?? options.auth?.capacitor ?? false,
       },
     }
 
