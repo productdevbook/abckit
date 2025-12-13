@@ -6,15 +6,19 @@ import { computed, watch } from 'vue'
 // Auth client singleton - initialized lazily with runtime config
 let authClient: ReturnType<typeof createAuthClient> | null = null
 
-// Capacitor Preferences lazy import
-let Preferences: typeof import('@capacitor/preferences').Preferences | null = null
+// Capacitor token handlers - set by useAuthMobile
+let capacitorTokenHandlers: {
+  onSuccess: (authToken: string) => Promise<void>
+  getToken: () => Promise<string>
+  clearToken: () => Promise<void>
+} | null = null
 
-async function getPreferences() {
-  if (!Preferences) {
-    const module = await import('@capacitor/preferences')
-    Preferences = module.Preferences
-  }
-  return Preferences
+/**
+ * Register Capacitor token handlers for mobile apps
+ * Call this from useAuthMobile before using useAuth
+ */
+export function registerCapacitorHandlers(handlers: typeof capacitorTokenHandlers) {
+  capacitorTokenHandlers = handlers
 }
 
 function getAuthClient() {
@@ -26,7 +30,6 @@ function getAuthClient() {
   const authConfig = config.public.abckit?.auth
   const baseURL = authConfig?.baseURL
   const basePath = authConfig?.basePath
-  const capacitor = authConfig?.capacitor ?? false
 
   // Build client options
   const clientOptions: Parameters<typeof createAuthClient>[0] = {
@@ -35,23 +38,22 @@ function getAuthClient() {
     plugins: [adminClient()],
   }
 
-  // Add Capacitor-specific fetch options for mobile apps
-  if (capacitor) {
+  // Add Capacitor fetch options if handlers are registered
+  if (capacitorTokenHandlers) {
     clientOptions.fetchOptions = {
       credentials: 'include',
       onSuccess: async (ctx) => {
         const authToken = ctx.response.headers.get('set-auth-token')
-        if (authToken) {
-          const prefs = await getPreferences()
-          await prefs.set({ key: 'auth_token', value: authToken })
+        if (authToken && capacitorTokenHandlers) {
+          await capacitorTokenHandlers.onSuccess(authToken)
         }
       },
       auth: {
         type: 'Bearer',
         token: async () => {
-          const prefs = await getPreferences()
-          const result = await prefs.get({ key: 'auth_token' })
-          return result?.value || ''
+          if (!capacitorTokenHandlers)
+            return ''
+          return capacitorTokenHandlers.getToken()
         },
       },
     }
@@ -100,10 +102,9 @@ export function useAuth() {
   async function logout() {
     await client.signOut()
 
-    // Clear Capacitor token if in capacitor mode
-    if (config.public.abckit?.auth?.capacitor) {
-      const prefs = await getPreferences()
-      await prefs.remove({ key: 'auth_token' })
+    // Clear Capacitor token if handlers are registered
+    if (capacitorTokenHandlers) {
+      await capacitorTokenHandlers.clearToken()
     }
 
     navigateTo('/')

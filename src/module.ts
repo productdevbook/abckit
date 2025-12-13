@@ -133,6 +133,11 @@ export default defineNuxtModule<ModuleOptions>({
   },
   defaults: {
     sentry: false,
+    auth: {
+      baseURL: undefined,
+      basePath: '/api/auth',
+      capacitor: false,
+    },
   },
   moduleDependencies: nuxt => ({
     '@nuxtjs/tailwindcss': {},

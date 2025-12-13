@@ -1,7 +1,7 @@
 {
   "name": "abckit",
   "type": "module",
-  "version": "0.0.13",
+  "version": "0.0.17",
   "private": false,
   "sideEffects": false,
   "exports": {
@@ -56,7 +56,8 @@
     "release": "pnpm publish --no-git-checks --access public"
   },
   "dependencies": {
-    "@capacitor/preferences": "^8.0.0",
+    "@capacitor/core": "^7.0.1",
+    "@capacitor/preferences": "^7.0.1",
     "@graphql-tools/utils": "^10.11.0",
     "@nuxt/icon": "^2.1.0",
     "@nuxtjs/color-mode": "^4.0.0",
