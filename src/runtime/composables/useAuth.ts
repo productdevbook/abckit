@@ -1,118 +1,123 @@
 import { navigateTo, useRuntimeConfig } from '#app'
 import { adminClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/vue'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { capacitorClient } from '../plugins/capacitor-client'
 
-// Auth client singleton - initialized lazily with runtime config
 let authClient: ReturnType<typeof createAuthClient> | null = null
 
-// Capacitor token handlers - set by useAuthMobile
-let capacitorTokenHandlers: {
-  onSuccess: (authToken: string) => Promise<void>
-  getToken: () => Promise<string>
-  clearToken: () => Promise<void>
-} | null = null
+// Offline session cache for initial load (before plugin initializes)
+const offlineSession = ref<any>(null)
+const offlineChecked = ref(false)
 
-/**
- * Register Capacitor token handlers for mobile apps
- * Call this from useAuthMobile before using useAuth
- */
-export function registerCapacitorHandlers(handlers: typeof capacitorTokenHandlers) {
-  capacitorTokenHandlers = handlers
+// Initialize offline session on module load (Capacitor only)
+async function initOfflineSession(isCapacitor: boolean) {
+  if (!isCapacitor || offlineChecked.value)
+    return
+
+  try {
+    const { Preferences } = await import('@capacitor/preferences')
+    const result = await Preferences.get({ key: 'better-auth_session' })
+    if (result?.value) {
+      offlineSession.value = JSON.parse(result.value)
+    }
+  }
+  catch {
+    // Ignore errors
+  }
+  finally {
+    offlineChecked.value = true
+  }
 }
 
 function getAuthClient() {
   if (authClient)
     return authClient
 
-  // Get runtime config for auth settings
   const config = useRuntimeConfig()
   const authConfig = config.public.abckit?.auth
-  const baseURL = authConfig?.baseURL
-  const basePath = authConfig?.basePath
+  const isCapacitor = authConfig?.capacitor ?? false
 
-  // Build client options
-  const clientOptions: Parameters<typeof createAuthClient>[0] = {
-    baseURL,
-    basePath,
-    plugins: [adminClient()],
+  // Initialize offline session
+  initOfflineSession(isCapacitor)
+
+  const plugins: any[] = [adminClient()]
+
+  // Add Capacitor plugin for mobile
+  if (isCapacitor) {
+    plugins.push(capacitorClient({
+      storagePrefix: 'better-auth',
+    }))
   }
 
-  // Add Capacitor fetch options if handlers are registered
-  if (capacitorTokenHandlers) {
-    clientOptions.fetchOptions = {
-      credentials: 'include',
-      onSuccess: async (ctx) => {
-        const authToken = ctx.response.headers.get('set-auth-token')
-        if (authToken && capacitorTokenHandlers) {
-          await capacitorTokenHandlers.onSuccess(authToken)
-        }
-      },
-      auth: {
-        type: 'Bearer',
-        token: async () => {
-          if (!capacitorTokenHandlers)
-            return ''
-          return capacitorTokenHandlers.getToken()
-        },
-      },
-    }
-  }
-
-  authClient = createAuthClient(clientOptions)
+  authClient = createAuthClient({
+    baseURL: authConfig?.baseURL,
+    basePath: authConfig?.basePath,
+    plugins,
+  })
 
   return authClient
 }
 
 /**
  * Main authentication composable for Better Auth
+ * Supports offline-first authentication for Capacitor apps
  */
 export function useAuth() {
   const client = getAuthClient()
   const session = client.useSession()
   const config = useRuntimeConfig()
+  const isCapacitor = config.public.abckit?.auth?.capacitor ?? false
 
-  const isLoading = computed(() => session.value.isPending)
-  const isAuthenticated = computed(() => !!session.value.data?.user)
-  const user = computed(() => session.value.data?.user || null)
+  const isLoading = computed(() => {
+    if (session.value.isPending)
+      return true
+    // Wait for offline check on Capacitor
+    if (isCapacitor && !offlineChecked.value)
+      return true
+    return false
+  })
 
-  // Sentry kullanıcı bilgilerini senkronize et (optional)
-  if (config.public.abckit?.sentry) {
-    watch(user, async (currentUser) => {
-      const Sentry = await import('@sentry/nuxt')
-      if (currentUser) {
-        Sentry.setUser({ id: currentUser.id })
-      }
-      else {
-        Sentry.setUser(null)
+  // Effective session: server or cached offline
+  const effectiveSession = computed(() => {
+    if (session.value.data?.user)
+      return session.value.data
+    if (isCapacitor && offlineSession.value?.user)
+      return offlineSession.value
+    return null
+  })
+
+  const isAuthenticated = computed(() => !!effectiveSession.value?.user)
+  const user = computed(() => effectiveSession.value?.user || null)
+
+  // Update offline cache when session changes
+  if (isCapacitor) {
+    watch(() => session.value.data, (data) => {
+      if (data?.user) {
+        offlineSession.value = data
       }
     }, { immediate: true })
   }
 
-  function login(returnTo?: string) {
-    const query = returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''
-    navigateTo(`/auth/login${query}`)
+  // Sentry integration
+  if (config.public.abckit?.sentry) {
+    watch(user, async (currentUser) => {
+      const Sentry = await import('@sentry/nuxt')
+      Sentry.setUser(currentUser ? { id: currentUser.id } : null)
+    }, { immediate: true })
   }
 
-  function register(returnTo?: string) {
-    const query = returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''
-    navigateTo(`/auth/register${query}`)
-  }
-
-  async function logout() {
+  async function logout(options: { skipNavigation?: boolean } = {}) {
     await client.signOut()
-
-    // Clear Capacitor token if handlers are registered
-    if (capacitorTokenHandlers) {
-      await capacitorTokenHandlers.clearToken()
-    }
-
+    // Clear offline session
+    offlineSession.value = null
+    if (options.skipNavigation)
+      return
     navigateTo('/')
   }
 
   async function refreshSession() {
-    const result = await client.getSession({ fetchOptions: { cache: 'no-store' } })
-    return result
+    return await client.getSession({ fetchOptions: { cache: 'no-store' } })
   }
 
   return {
@@ -120,15 +125,12 @@ export function useAuth() {
     isLoading,
     isAuthenticated,
     user,
-    login,
-    register,
     logout,
     refreshSession,
     authClient: client,
   }
 }
 
-// Lazy exports - these will use the singleton once initialized
 export function getAuthClientExports() {
   const client = getAuthClient()
   return {

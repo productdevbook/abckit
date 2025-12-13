@@ -1,5 +1,5 @@
 import { defineNuxtRouteMiddleware, navigateTo } from '#app'
-import { useAuth } from '../composables/useAuth'
+import { useAuth } from 'abckit/composables/useAuth'
 
 /**
  * Global auth middleware for Better Auth
