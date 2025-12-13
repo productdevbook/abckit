@@ -17,9 +17,15 @@ importers:
 
   .:
     dependencies:
+      '@capacitor/app':
+        specifier: ^7.1.1
+        version: 7.1.1(@capacitor/core@7.4.4)
       '@capacitor/core':
         specifier: ^7.0.1
         version: 7.4.4
+      '@capacitor/network':
+        specifier: ^7.0.3
+        version: 7.0.3(@capacitor/core@7.4.4)
       '@capacitor/preferences':
         specifier: ^7.0.1
         version: 7.0.3(@capacitor/core@7.4.4)
@@ -635,8 +641,18 @@ packages:
       commander:
         optional: true
 
+  '@capacitor/app@7.1.1':
+    resolution: {integrity: sha512-H4rmMXlL6GEDs2Yds5JvYqZxz4mdp7R4XdGJ7p+oGV+YapuQ2kW38UabuhdP6qSrKfIeLde6qx+8FEX02krypA==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
   '@capacitor/core@7.4.4':
     resolution: {integrity: sha512-xzjxpr+d2zwTpCaN0k+C6wKSZzWFAb9OVEUtmO72ihjr/NEDoLvsGl4WLfjWPcCO2zOy0b2X52tfRWjECFUjtw==}
+
+  '@capacitor/network@7.0.3':
+    resolution: {integrity: sha512-v1dP2GN7Vwwc6W1jJnzTE9jdXNVz/vMscqT3Gvc2jJy6v4Kpw3vHnc1JUfM4g78VkbqdwO/ProR3glTamZ9MDg==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@capacitor/preferences@7.0.3':
     resolution: {integrity: sha512-s8u2PCnxCj6auvZZaFb//KJSyvgwwtKu6aFA7PQ1FQULhZw+3zCb78biyWcl71KF0iBuC2jYlj4PjTeaF5OIGQ==}
@@ -8473,9 +8489,17 @@ snapshots:
       cac: 6.7.14
       citty: 0.1.6
 
+  '@capacitor/app@7.1.1(@capacitor/core@7.4.4)':
+    dependencies:
+      '@capacitor/core': 7.4.4
+
   '@capacitor/core@7.4.4':
     dependencies:
       tslib: 2.8.1
+
+  '@capacitor/network@7.0.3(@capacitor/core@7.4.4)':
+    dependencies:
+      '@capacitor/core': 7.4.4
 
   '@capacitor/preferences@7.0.3(@capacitor/core@7.4.4)':
     dependencies:
