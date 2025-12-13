@@ -360,6 +360,8 @@ export {}
     nuxt.options.alias['abckit/components'] = resolve('./runtime/components')
     nuxt.options.alias['abckit/shadcn'] = resolve('./runtime/components/ui')
     nuxt.options.alias['abckit/composables'] = resolve('./runtime/composables')
+    nuxt.options.alias['abckit/middleware'] = resolve('./runtime/middleware')
+    nuxt.options.alias['abckit/plugins'] = resolve('./runtime/plugins')
     nuxt.options.alias['abckit/graphql'] = resolve('./runtime/graphql')
     nuxt.options.alias['abckit/stores'] = resolve('./runtime/stores')
     nuxt.options.alias['abckit/utils'] = resolve('./runtime/utils')
@@ -422,11 +424,11 @@ export {}
     //   })
     // })
 
-    // Register global auth middleware (handles banned/pending users)
+    // Register auth middleware (page-level, not global)
+    // Usage: definePageMeta({ middleware: 'auth' })
     addRouteMiddleware({
-      name: 'auth-status',
-      path: resolve('./runtime/middleware/auth.global'),
-      global: true,
+      name: 'auth',
+      path: resolve('./runtime/middleware/auth'),
     })
 
     // Components are NOT auto-imported

@@ -1,7 +1,7 @@
 {
   "name": "abckit",
   "type": "module",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "private": false,
   "sideEffects": false,
   "exports": {
@@ -61,6 +61,7 @@
     "@capacitor/network": "^7.0.3",
     "@capacitor/preferences": "^7.0.1",
     "@graphql-tools/utils": "^10.11.0",
+    "@ionic/vue": "^8.7.13",
     "@nuxt/icon": "^2.1.0",
     "@nuxtjs/color-mode": "^4.0.0",
     "@nuxtjs/i18n": "^10.2.1",
