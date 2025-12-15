@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BreadcrumbItemProps } from 'abckit/composables/useBreadcrumbItems'
+import type { BreadcrumbsConfig } from '../../../module'
 import { useAppConfig } from '#app'
 import { NuxtLink } from '#components'
 import { useBreadcrumbItems } from 'abckit/composables/useBreadcrumbItems'
@@ -16,7 +17,7 @@ import { computed } from 'vue'
 const appConfig = useAppConfig()
 
 // Get breadcrumb config from app.config.ts
-const breadcrumbConfig = computed(() => appConfig.breadcrumbs || {})
+const breadcrumbConfig = computed<NonNullable<BreadcrumbsConfig['breadcrumbs']>>(() => appConfig.breadcrumbs ?? {})
 
 // Build base URL for prepend
 const baseUrl = computed(() => {
