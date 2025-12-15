@@ -1,5 +1,6 @@
 imports.autoImport=false
 typescript.includeWorkspace=true
+abckit.npm=true
 
 # enable TypeScript bundler module resolution - https://www.typescriptlang.org/docs/handbook/modules/reference.html#bundler
 experimental.typescriptBundlerResolution=true

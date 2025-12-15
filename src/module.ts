@@ -65,6 +65,11 @@ export interface ModuleOptions {
    * Better Auth client configuration
    */
   auth?: AuthClientOptions
+
+  /**
+      Set to true when installed via npm package, dont used project.
+   */
+  npm?: boolean
 }
 
 declare module '@nuxt/schema' {
@@ -465,5 +470,15 @@ export {}
 
     // Components are NOT auto-imported
     // Import manually: import { Button } from 'abckit/shadcn/button'
+
+    if (nuxt.options.abckit.npm) {
+      nuxt.options.typescript.tsConfig.compilerOptions ??= {}
+      nuxt.options.typescript.tsConfig.compilerOptions.paths ??= {}
+      nuxt.options.typescript.tsConfig.compilerOptions.paths['abckit/components'] = ['./node_modules/abckit/runtime/components/ui']
+      nuxt.options.typescript.tsConfig.compilerOptions.paths['abckit/composables'] = ['./node_modules/abckit/runtime/composables']
+      nuxt.options.typescript.tsConfig.compilerOptions.paths['abckit/utils'] = ['./node_modules/abckit/runtime/utils']
+      nuxt.options.typescript.tsConfig.compilerOptions.paths['abckit/shadcn'] = ['./node_modules/abckit/runtime/components/ui']
+      nuxt.options.typescript.tsConfig.compilerOptions.paths['abckit/lib'] = ['./node_modules/abckit/runtime/utils']
+    }
   },
 })
