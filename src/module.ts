@@ -67,7 +67,7 @@ export interface ModuleOptions {
   auth?: AuthClientOptions
 }
 
-declare module 'nuxt/schema' {
+declare module '@nuxt/schema' {
   interface AppConfig extends BreadcrumbsConfig, SetupConfig { }
 
   interface RuntimeConfig {
@@ -149,12 +149,19 @@ export default defineNuxtModule<ModuleOptions>({
     '@pinia/nuxt': {},
     '@vee-validate/nuxt': {},
     'nitro-graphql/nuxt': {},
+    'pinia-plugin-persistedstate/nuxt': {},
+    '@nuxtjs/ionic': {},
+    '@nuxt/scripts': {},
     '@sentry/nuxt/module': {
       optional: nuxt.options.dev,
     },
   }),
   async setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
+
+    nuxt.options.devtools = defu(nuxt.options.devtools, {
+      enabled: false,
+    } satisfies typeof nuxt.options.devtools)
 
     // abckit konfigürasyonunu public runtime config'e ekle
     nuxt.options.runtimeConfig.public.abckit = {
@@ -332,7 +339,18 @@ export {}
         },
       },
       scaffold: false,
-    } as typeof nuxt.options.nitro.graphql as NitroGraphQLOptions)
+    } satisfies typeof nuxt.options.nitro.graphql)
+
+    nuxt.options.ionic = defu(nuxt.options.ionic, {
+      integrations: {
+        icons: false,
+      },
+      css: {
+        basic: false, // Tailwind ile çakışan normalize/typography kapalı
+        core: true, // IonPage, IonHeader stilleri açık
+        utilities: false, // ion-padding vs. kapalı
+      },
+    })
 
     // Register public directory for static files (silent-check-sso.html, etc.)
     nuxt.options.nitro.publicAssets = nuxt.options.nitro.publicAssets || []
@@ -386,6 +404,21 @@ export {}
     excludeSet.add('tailwind-merge')
     excludeSet.add('@sindresorhus/slugify')
     excludeSet.add('better-auth')
+    excludeSet.add('leaflet')
+    excludeSet.add('@capgo/capacitor-social-login')
+    excludeSet.add('ionicons/icons')
+    excludeSet.add('@ionic/vue')
+    excludeSet.add('@capacitor/core')
+    excludeSet.add('@capacitor/status-bar')
+    excludeSet.add('@capacitor/splash-screen')
+    excludeSet.add('@capacitor/preferences')
+    excludeSet.add('@capacitor/geolocation')
+    excludeSet.add('@capacitor/network')
+    excludeSet.add('@capacitor/push-notifications')
+    excludeSet.add('@capacitor/device')
+    excludeSet.add('capacitor-native-settings')
+    excludeSet.add('@capacitor/haptics')
+    excludeSet.add('@unovis/vue')
     nuxt.options.vite.optimizeDeps.exclude = Array.from(excludeSet)
 
     // Configure TypeScript
@@ -398,13 +431,12 @@ export {}
     })
 
     // Configure color mode
-    ;(nuxt.options as any).colorMode = {
+    nuxt.options.colorMode = defu(nuxt.options.colorMode, {
       classSuffix: '',
       fallback: 'light',
-      storageKey: 'abckit-color-mode',
+      storageKey: 'color-mode',
       preference: 'light',
-      hid: 'nuxt-color-mode-script',
-    }
+    } as Partial<typeof nuxt.options.colorMode>)
 
     // Register server directory (auto-scans middleware, api, etc.)
     addServerScanDir(resolve('./runtime/server'))
