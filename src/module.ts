@@ -1,8 +1,15 @@
 import type { NitroGraphQLOptions } from 'nitro-graphql'
 import type { BreadcrumbItemProps } from './runtime/composables/useBreadcrumbItems'
 import { join } from 'node:path'
-import { addRouteMiddleware, addServerScanDir, addTypeTemplate, createResolver, defineNuxtModule } from '@nuxt/kit'
+import {
+  addRouteMiddleware,
+  addServerScanDir,
+  addTypeTemplate,
+  createResolver,
+  defineNuxtModule,
+} from '@nuxt/kit'
 import { defu } from 'defu'
+import { isMobileBuild, mobileBaseURL } from './utils/mobile'
 
 export interface BreadcrumbsConfig {
   breadcrumbs?: {
@@ -109,6 +116,7 @@ declare module '@nuxt/schema' {
 
   interface PublicRuntimeConfig {
     siteUrl: string
+    isMobile: boolean
     debug: boolean
     imgproxy: {
       storageUrl: string
@@ -139,9 +147,9 @@ export default defineNuxtModule<ModuleOptions>({
   defaults: {
     sentry: false,
     auth: {
-      baseURL: undefined,
+      baseURL: isMobileBuild ? mobileBaseURL : undefined,
       basePath: '/api/auth',
-      capacitor: false,
+      capacitor: isMobileBuild,
     },
   },
   moduleDependencies: nuxt => ({
@@ -172,9 +180,9 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.runtimeConfig.public.abckit = {
       sentry: nuxt.options.runtimeConfig.public.abckit?.sentry ?? options.sentry ?? false,
       auth: {
-        baseURL: nuxt.options.runtimeConfig.public.abckit?.auth?.baseURL ?? options.auth?.baseURL,
+        baseURL: isMobileBuild ? mobileBaseURL : (nuxt.options.runtimeConfig.public.abckit?.auth?.baseURL ?? options.auth?.baseURL),
         basePath: nuxt.options.runtimeConfig.public.abckit?.auth?.basePath ?? options.auth?.basePath,
-        capacitor: nuxt.options.runtimeConfig.public.abckit?.auth?.capacitor ?? options.auth?.capacitor ?? false,
+        capacitor: isMobileBuild,
       },
     }
 
@@ -214,12 +222,44 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Merge runtime config - Public (client + server)
     nuxt.options.runtimeConfig.public = defu(nuxt.options.runtimeConfig.public, {
-      siteUrl: 'http://localhost:3000',
+      siteUrl: isMobileBuild ? mobileBaseURL : 'http://localhost:3000',
+      isMobile: isMobileBuild,
       debug: nuxt.options.dev,
       imgproxy: {
         storageUrl: '',
         cdnDomains: [] as string[],
       },
+    })
+
+    // Configure app head with sensible defaults
+    const siteUrl = nuxt.options.runtimeConfig.public.siteUrl as string
+    const appName = nuxt.options.app.head?.title as string || 'abckit'
+
+    nuxt.options.app.head = defu(nuxt.options.app.head, {
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no' },
+        { name: 'author', content: appName },
+        { name: 'robots', content: 'index, follow' },
+        // Open Graph
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: appName },
+        { property: 'og:image', content: `${siteUrl}/og-image.png` },
+        { property: 'og:url', content: siteUrl },
+        // Twitter
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:image', content: `${siteUrl}/og-image.png` },
+        // Apple
+        { name: 'apple-mobile-web-app-title', content: appName },
+      ],
+      link: [
+        { rel: 'icon', type: 'image/png', href: '/favicon-96x96.png', sizes: '96x96' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'shortcut icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        // Manifest only for web, not needed in native apps
+        ...(isMobileBuild ? [] : [{ rel: 'manifest', href: '/site.webmanifest' }]),
+      ],
     })
 
     // Add type declarations for H3 event context (server-side)
@@ -344,7 +384,7 @@ export {}
         },
       },
       scaffold: false,
-    } satisfies typeof nuxt.options.nitro.graphql)
+    } satisfies typeof nuxt.options.nitro.graphql as NitroGraphQLOptions)
 
     nuxt.options.ionic = defu(nuxt.options.ionic, {
       integrations: {
@@ -391,6 +431,10 @@ export {}
     nuxt.options.alias['abckit/types/client'] = resolve('./runtime/types/nitro-graphql-client')
     nuxt.options.alias['abckit/shared'] = resolve('./runtime/shared')
 
+    nuxt.options.vite.define = defu(nuxt.options.vite.define, {
+      'import.meta.env.VITE_MOBILE_BUILD': JSON.stringify(isMobileBuild ? 'true' : 'false'),
+    })
+
     nuxt.options.vite.optimizeDeps = nuxt.options.vite.optimizeDeps || {}
     nuxt.options.vite.optimizeDeps.exclude = nuxt.options.vite.optimizeDeps.exclude || []
 
@@ -431,6 +475,7 @@ export {}
       tsConfig: {
         compilerOptions: {
           allowArbitraryExtensions: true,
+          types: ['@pinia/colada-plugin-auto-refetch'],
         },
       },
     })
@@ -466,6 +511,14 @@ export {}
     addRouteMiddleware({
       name: 'auth',
       path: resolve('./runtime/middleware/auth'),
+    })
+
+    nuxt.options.routeRules = nuxt.options.routeRules || {}
+    nuxt.options.routeRules['/**'] = defu(nuxt.options.routeRules['/**'] || {}, {
+      ssr: false,
+    })
+    nuxt.options.routeRules['/'] = defu(nuxt.options.routeRules['/'] || {}, {
+      ssr: true,
     })
 
     // Components are NOT auto-imported
