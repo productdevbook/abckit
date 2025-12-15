@@ -151,6 +151,7 @@ export default defineNuxtModule<ModuleOptions>({
       basePath: '/api/auth',
       capacitor: isMobileBuild,
     },
+    npm: false,
   },
   moduleDependencies: nuxt => ({
     '@nuxtjs/tailwindcss': {},
@@ -171,6 +172,8 @@ export default defineNuxtModule<ModuleOptions>({
   }),
   async setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
+
+    nuxt.options.abckit = defu(nuxt.options.abckit, options)
 
     nuxt.options.devtools = defu(nuxt.options.devtools, {
       enabled: false,
