@@ -1,7 +1,31 @@
 {
   "name": "abckit",
   "type": "module",
-  "version": "0.0.29",
+  "version": "0.0.30",
+  "description": "Nuxt 4 module — UI components, auth, storage, GraphQL",
+  "author": "productdevbook",
+  "license": "MIT",
+  "homepage": "https://github.com/productdevbook/abckit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/productdevbook/abckit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/productdevbook/abckit/issues"
+  },
+  "keywords": [
+    "nuxt",
+    "nuxt-module",
+    "vue",
+    "shadcn",
+    "ui-components",
+    "auth",
+    "graphql",
+    "tailwindcss",
+    "pinia",
+    "better-auth",
+    "reka-ui"
+  ],
   "private": false,
   "sideEffects": false,
   "workspaces": ["playground/*"],
