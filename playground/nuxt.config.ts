@@ -6,4 +6,9 @@ export default defineNuxtConfig({
   devServer: {
     port: 3070,
   },
+  abckit: {
+    modules: {
+      graphql: true,
+    },
+  },
 })
