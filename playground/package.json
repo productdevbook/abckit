@@ -2,7 +2,7 @@
   "name": "playground",
   "version": "1.0.0",
   "type": "module",
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@10.26.1",
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
