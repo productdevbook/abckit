@@ -1,7 +1,7 @@
 {
   "name": "abckit",
   "type": "module",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "Nuxt 4 module — UI components, auth, storage, GraphQL",
   "author": "productdevbook",
   "license": "MIT",
