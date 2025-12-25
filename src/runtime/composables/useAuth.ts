@@ -1,4 +1,5 @@
 import { navigateTo, useRuntimeConfig } from '#app'
+import { oauthProviderClient } from '@better-auth/oauth-provider/client'
 import { adminClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/vue'
 import { computed, ref, watch } from 'vue'
@@ -42,6 +43,11 @@ function getAuthClient() {
   initOfflineSession(isCapacitor)
 
   const plugins: any[] = [adminClient()]
+
+  // Add OAuth Provider plugin
+  if (authConfig?.oauthProvider) {
+    plugins.push(oauthProviderClient())
+  }
 
   // Add Capacitor plugin for mobile
   if (isCapacitor) {

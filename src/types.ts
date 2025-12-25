@@ -48,6 +48,13 @@ export interface AuthClientOptions {
    * @default false
    */
   capacitor?: boolean
+
+  /**
+   * Enable OAuth 2.1 Provider client plugin
+   * Adds oauth2.* methods to authClient for consent management, client registration, etc.
+   * @default false
+   */
+  oauthProvider?: boolean
 }
 
 export interface ModulesConfig {
@@ -218,6 +225,7 @@ declare module '@nuxt/schema' {
         baseURL?: string
         basePath?: string
         capacitor?: boolean
+        oauthProvider?: boolean
       }
     }
   }

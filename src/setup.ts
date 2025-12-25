@@ -29,6 +29,7 @@ export function setupRuntimeConfig(nuxt: Nuxt, options: ModuleOptions, isSentryE
       baseURL: isMobileBuild ? mobileBaseURL : (nuxt.options.runtimeConfig.public.abckit?.auth?.baseURL ?? options.auth?.baseURL),
       basePath: nuxt.options.runtimeConfig.public.abckit?.auth?.basePath ?? options.auth?.basePath,
       capacitor: isMobileBuild,
+      oauthProvider: options.auth?.oauthProvider ?? false,
     },
   }
 
