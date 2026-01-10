@@ -1,3 +1,10 @@
+// Capacitor packages to externalize (optional dependencies)
+export const CAPACITOR_EXTERNAL_PACKAGES = [
+  '@capacitor/preferences',
+  '@capacitor/app',
+  '@capacitor/network',
+] as const
+
 // Vite optimization exclude packages
 export const VITE_EXCLUDE_PACKAGES = [
   'abckit',
@@ -26,6 +33,7 @@ export const VITE_EXCLUDE_PACKAGES = [
   '@capacitor/network',
   '@capacitor/push-notifications',
   '@capacitor/device',
+  '@capacitor/app',
   'capacitor-native-settings',
   '@capacitor/haptics',
   '@unovis/vue',

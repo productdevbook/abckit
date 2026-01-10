@@ -7,6 +7,7 @@ import { defu } from 'defu'
 import {
   ALIAS_PATHS,
   APP_HEAD_LINKS,
+  CAPACITOR_EXTERNAL_PACKAGES,
   DRAGONFLY_DEFAULTS,
   GRAPHQL_SCALARS,
   H3_TYPE_TEMPLATE,
@@ -140,6 +141,17 @@ export function setupVite(nuxt: Nuxt): void {
   const excludeSet = new Set(nuxt.options.vite.optimizeDeps.exclude)
   VITE_EXCLUDE_PACKAGES.forEach(pkg => excludeSet.add(pkg))
   nuxt.options.vite.optimizeDeps.exclude = Array.from(excludeSet)
+
+  // Mark Capacitor packages as external (optional dependencies)
+  // This prevents build errors when consuming projects don't have Capacitor installed
+  nuxt.options.vite.build = nuxt.options.vite.build || {}
+  nuxt.options.vite.build.rollupOptions = nuxt.options.vite.build.rollupOptions || {}
+  const existingExternal = nuxt.options.vite.build.rollupOptions.external
+  const externalSet = new Set<string>(
+    Array.isArray(existingExternal) ? existingExternal.filter((e): e is string => typeof e === 'string') : [],
+  )
+  CAPACITOR_EXTERNAL_PACKAGES.forEach(pkg => externalSet.add(pkg))
+  nuxt.options.vite.build.rollupOptions.external = Array.from(externalSet)
 
   // Development mode
   if (nuxt.options.dev) {
