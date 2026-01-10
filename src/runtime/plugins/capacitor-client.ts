@@ -1,7 +1,18 @@
+import type { Preferences as PreferencesType } from '@capacitor/preferences'
 import type { BetterAuthClientPlugin, ClientStore } from 'better-auth'
 import type { FocusManager, OnlineManager } from 'better-auth/client'
-import { Preferences } from '@capacitor/preferences'
 import { kFocusManager, kOnlineManager } from 'better-auth/client'
+
+// Lazy-loaded Preferences module to avoid import errors on web
+let Preferences: typeof PreferencesType | null = null
+
+async function getPreferences(): Promise<typeof PreferencesType> {
+  if (!Preferences) {
+    const mod = await import('@capacitor/preferences')
+    Preferences = mod.Preferences
+  }
+  return Preferences
+}
 
 interface StoredCookie {
   value: string
@@ -339,7 +350,8 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
          * Get stored cookie string for manual fetch requests
          */
         getCookie: async () => {
-          const result = await Preferences.get({ key: cookieName })
+          const prefs = await getPreferences()
+          const result = await prefs.get({ key: cookieName })
           return getCookieString(result?.value || '{}')
         },
 
@@ -347,7 +359,8 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
          * Get cached session data for offline use
          */
         getCachedSession: async () => {
-          const result = await Preferences.get({ key: sessionCacheName })
+          const prefs = await getPreferences()
+          const result = await prefs.get({ key: sessionCacheName })
           if (!result?.value)
             return null
           try {
@@ -362,8 +375,9 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
          * Clear all stored auth data
          */
         clearStorage: async () => {
-          await Preferences.remove({ key: cookieName })
-          await Preferences.remove({ key: sessionCacheName })
+          const prefs = await getPreferences()
+          await prefs.remove({ key: cookieName })
+          await prefs.remove({ key: sessionCacheName })
         },
       }
     },
@@ -374,21 +388,23 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
         name: 'Capacitor Auth',
         hooks: {
           async onSuccess(context) {
+            const prefs = await getPreferences()
+
             // Handle set-auth-token header (Better Auth's token response)
             const authToken = context.response.headers.get('set-auth-token')
             if (authToken) {
-              const prevCookie = (await Preferences.get({ key: cookieName }))?.value
+              const prevCookie = (await prefs.get({ key: cookieName }))?.value
               // Store with proper cookie prefix (e.g., 'better-auth.session_token')
               const tokenCookie = `${cookiePrefix}.session_token=${authToken}`
               const newCookie = mergeCookies(tokenCookie, prevCookie ?? undefined)
 
               if (hasSessionCookieChanged(prevCookie ?? null, newCookie)) {
-                await Preferences.set({ key: cookieName, value: newCookie })
+                await prefs.set({ key: cookieName, value: newCookie })
                 store?.notify('$sessionSignal')
               }
               else {
                 // Still update to refresh expiry
-                await Preferences.set({ key: cookieName, value: newCookie })
+                await prefs.set({ key: cookieName, value: newCookie })
               }
             }
 
@@ -398,15 +414,15 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
               // Only process if it contains better-auth cookies
               // This prevents infinite refetching when third-party cookies are present
               if (hasBetterAuthCookies(setCookie, cookiePrefix)) {
-                const prevCookie = (await Preferences.get({ key: cookieName }))?.value
+                const prevCookie = (await prefs.get({ key: cookieName }))?.value
                 const newCookie = mergeCookies(setCookie, prevCookie ?? undefined)
 
                 if (hasSessionCookieChanged(prevCookie ?? null, newCookie)) {
-                  await Preferences.set({ key: cookieName, value: newCookie })
+                  await prefs.set({ key: cookieName, value: newCookie })
                   store?.notify('$sessionSignal')
                 }
                 else {
-                  await Preferences.set({ key: cookieName, value: newCookie })
+                  await prefs.set({ key: cookieName, value: newCookie })
                 }
               }
             }
@@ -414,7 +430,7 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
             // Cache session data for offline use
             if (context.request.url.toString().includes('/get-session')) {
               if (context.data?.session || context.data?.user) {
-                await Preferences.set({
+                await prefs.set({
                   key: sessionCacheName,
                   value: JSON.stringify(context.data),
                 })
@@ -424,8 +440,10 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
         },
 
         async init(url, options) {
+          const prefs = await getPreferences()
+
           // Add stored cookie to request headers
-          const storedCookie = (await Preferences.get({ key: cookieName }))?.value
+          const storedCookie = (await prefs.get({ key: cookieName }))?.value
           const cookie = getCookieString(storedCookie || '{}')
 
           if (cookie) {
@@ -438,8 +456,8 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
 
           // Handle sign-out: clear storage and update state immediately
           if (url.includes('/sign-out')) {
-            await Preferences.remove({ key: cookieName })
-            await Preferences.remove({ key: sessionCacheName })
+            await prefs.remove({ key: cookieName })
+            await prefs.remove({ key: sessionCacheName })
 
             // Immediately update session state
             if (store?.atoms?.session) {

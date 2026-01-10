@@ -31,13 +31,20 @@ async function initOfflineSession(isCapacitor: boolean) {
   }
 }
 
+function isCapacitorNative(): boolean {
+  if (typeof window === 'undefined')
+    return false
+  const cap = (window as any).Capacitor
+  return cap?.isNativePlatform?.() ?? false
+}
+
 function getAuthClient() {
   if (authClient)
     return authClient
 
   const config = useRuntimeConfig()
   const authConfig = config.public.abckit?.auth
-  const isCapacitor = authConfig?.capacitor ?? false
+  const isCapacitor = authConfig?.capacitor ?? isCapacitorNative()
 
   // Initialize offline session
   initOfflineSession(isCapacitor)
@@ -73,7 +80,7 @@ export function useAuth() {
   const client = getAuthClient()
   const session = client.useSession()
   const config = useRuntimeConfig()
-  const isCapacitor = config.public.abckit?.auth?.capacitor ?? false
+  const isCapacitor = config.public.abckit?.auth?.capacitor ?? isCapacitorNative()
 
   const isLoading = computed(() => {
     if (session.value.isPending)
