@@ -1,9 +1,12 @@
-import { defineNitroPlugin, useRuntimeConfig, useStorage } from 'nitropack/runtime'
+import { useRuntimeConfig } from 'nitro/runtime-config'
+import { definePlugin } from 'nitro'
+import { useStorage } from 'nitro/storage'
+
 import fs from 'unstorage/drivers/fs-lite'
 import redisDriver from 'unstorage/drivers/redis'
 import s3Driver from 'unstorage/drivers/s3'
 
-export default defineNitroPlugin(() => {
+export default definePlugin(() => {
   const config = useRuntimeConfig()
   const storage = useStorage()
   const storageConfig = config.storage as { redis: boolean, s3: boolean, disk: boolean }
