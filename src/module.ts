@@ -47,7 +47,9 @@ export default defineNuxtModule<ModuleOptions>({
     },
     npm: false,
   },
-  moduleDependencies: getModuleDependencies,
+  async moduleDependencies(nuxt) {
+    return getModuleDependencies(nuxt)
+  },
   async setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
 
@@ -60,7 +62,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Setup
     setupDevtools(nuxt)
-    setupRuntimeConfig(nuxt, options, isSentryEnabled)
+    await setupRuntimeConfig(nuxt, options, isSentryEnabled)
     setupAppHead(nuxt)
     setupTypes()
     setupHooks(nuxt, resolve)

@@ -58,7 +58,7 @@ export function getModuleDependencies(nuxt: any): Record<string, any> {
     '@vueuse/nuxt': { optional: !isEnabled('vueuse') },
     '@pinia/nuxt': { optional: !isEnabled('pinia') },
     '@vee-validate/nuxt': { optional: !isEnabled('veeValidate') },
-    'nitro-graphql/nuxt': { optional: !isEnabled('graphql', 'graphql') },
+    // 'nitro-graphql/nuxt': { optional: !isEnabled('graphql', 'graphql') },
     'pinia-plugin-persistedstate/nuxt': { optional: !isEnabled('persistedState') },
     '@nuxtjs/ionic': { optional: !isEnabled('ionic') },
     '@nuxt/scripts': { optional: !isEnabled('scripts') },

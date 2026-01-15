@@ -1,20 +1,16 @@
 import type { Nuxt } from '@nuxt/schema'
-import type { NitroGraphQLOptions } from 'nitro-graphql'
 import type { ModuleOptions } from './types'
 import { join } from 'node:path'
-import { addRouteMiddleware, addServerScanDir, addTypeTemplate } from '@nuxt/kit'
+import { addRouteMiddleware, addServerScanDir, addTypeTemplate, updateRuntimeConfig } from '@nuxt/kit'
 import { defu } from 'defu'
 import {
   ALIAS_PATHS,
   APP_HEAD_LINKS,
   CAPACITOR_EXTERNAL_PACKAGES,
-  DRAGONFLY_DEFAULTS,
   GRAPHQL_SCALARS,
   H3_TYPE_TEMPLATE,
   IMGPROXY_DEFAULTS,
   NPM_TS_PATHS,
-  POLAR_DEFAULTS,
-  S3_DEFAULTS,
   STORAGE_DEFAULTS,
   VITE_EXCLUDE_PACKAGES,
 } from './constants'
@@ -22,7 +18,7 @@ import { isMobileBuild, mobileBaseURL } from './utils/mobile'
 
 type Resolver = (path: string) => string
 
-export function setupRuntimeConfig(nuxt: Nuxt, options: ModuleOptions, isSentryEnabled: boolean): void {
+export async function setupRuntimeConfig(nuxt: Nuxt, options: ModuleOptions, isSentryEnabled: boolean): Promise<void> {
   // Public abckit config
   nuxt.options.runtimeConfig.public.abckit = {
     sentry: isSentryEnabled,
@@ -35,9 +31,6 @@ export function setupRuntimeConfig(nuxt: Nuxt, options: ModuleOptions, isSentryE
   }
 
   // Server runtime configs
-  nuxt.options.runtimeConfig.dragonfly = defu(nuxt.options.runtimeConfig.dragonfly, DRAGONFLY_DEFAULTS)
-  nuxt.options.runtimeConfig.s3 = defu(nuxt.options.runtimeConfig.s3, S3_DEFAULTS)
-  nuxt.options.runtimeConfig.polar = defu(nuxt.options.runtimeConfig.polar, POLAR_DEFAULTS)
   nuxt.options.runtimeConfig.imgproxy = defu(nuxt.options.runtimeConfig.imgproxy, IMGPROXY_DEFAULTS)
   nuxt.options.runtimeConfig.storage = defu(nuxt.options.runtimeConfig.storage, STORAGE_DEFAULTS)
 
@@ -47,6 +40,16 @@ export function setupRuntimeConfig(nuxt: Nuxt, options: ModuleOptions, isSentryE
     isMobile: isMobileBuild,
     debug: nuxt.options.dev,
     imgproxy: IMGPROXY_DEFAULTS,
+  })
+
+  await updateRuntimeConfig({
+    modules: defu(options.modules, {
+      s3: false,
+      graphql: false,
+      redis: false,
+      disk: false,
+      ionic: false,
+    }),
   })
 }
 
@@ -97,22 +100,21 @@ export function setupNitro(nuxt: Nuxt, resolve: Resolver, isGraphqlEnabled: bool
     asyncContext: true,
   })
 
-  nuxt.options.nitro.esbuild = defu(nuxt.options.nitro.esbuild, {
-    options: { target: 'esnext' },
-  })
+  nuxt.options.nitro.builder = 'rolldown'
 
   if (isGraphqlEnabled) {
-    nuxt.options.nitro.modules = nuxt.options.nitro.modules || []
-    nuxt.options.nitro.modules.push('nitro-graphql')
+    // nuxt.options.nitro.modules = nuxt.options.nitro.modules || []
+    // nuxt.options.nitro.modules.push('nitro-graphql')
 
-    nuxt.options.nitro.graphql = defu(nuxt.options.nitro.graphql, {
-      framework: 'graphql-yoga',
-      codegen: {
-        server: { scalars: GRAPHQL_SCALARS },
-        client: { scalars: GRAPHQL_SCALARS },
-      },
-      scaffold: false,
-    } satisfies typeof nuxt.options.nitro.graphql as NitroGraphQLOptions)
+    // TODO: dont support nitro graphql yet
+    // nuxt.options.nitro.graphql = defu(nuxt.options.nitro.graphql, {
+    //   framework: 'graphql-yoga',
+    //   codegen: {
+    //     server: { scalars: GRAPHQL_SCALARS },
+    //     client: { scalars: GRAPHQL_SCALARS },
+    //   },
+    //   scaffold: false,
+    // } satisfies typeof nuxt.options.nitro.graphql as NitroGraphQLOptions)
   }
 
   // Ionic config

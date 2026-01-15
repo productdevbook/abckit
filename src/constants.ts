@@ -39,30 +39,6 @@ export const VITE_EXCLUDE_PACKAGES = [
   '@unovis/vue',
 ] as const
 
-// Runtime config defaults
-export const DRAGONFLY_DEFAULTS = {
-  host: 'dragonfly',
-  port: 6379,
-  password: '',
-  url: '',
-}
-
-export const S3_DEFAULTS = {
-  accessKeyId: '',
-  secretAccessKey: '',
-  endpoint: '',
-  bucket: '',
-  region: 'auto',
-  publicUrl: '',
-}
-
-export const POLAR_DEFAULTS = {
-  accessToken: '',
-  checkoutSuccessUrl: '/checkout/success',
-  server: 'sandbox' as const,
-  webhookSecret: '',
-}
-
 export const IMGPROXY_DEFAULTS = {
   storageUrl: '',
   cdnDomains: [] as string[],

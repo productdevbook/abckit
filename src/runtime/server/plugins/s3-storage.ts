@@ -9,20 +9,19 @@ import s3Driver from 'unstorage/drivers/s3'
 export default definePlugin(() => {
   const config = useRuntimeConfig()
   const storage = useStorage()
-  const storageConfig = config.storage as { redis: boolean, s3: boolean, disk: boolean }
+  const storageConfig = config.modules
 
   // Mount Redis/DragonflyDB cache storage (if enabled)
   if (storageConfig.redis) {
     // Support both URL format (NUXT_DRAGONFLY_URL) and separate params (NUXT_DRAGONFLY_HOST/PORT/PASSWORD)
     const dragonflyUrl = process.env.NUXT_DRAGONFLY_URL || process.env.DRAGONFLY_URL || process.env.REDIS_URL
-    const dragonflyConfig = config.dragonfly || {}
 
     const dragonflyDriver = dragonflyUrl
       ? redisDriver({ url: dragonflyUrl })
       : redisDriver({
-          host: (dragonflyConfig as any).host || 'dragonfly',
-          port: (dragonflyConfig as any).port || 6379,
-          password: (dragonflyConfig as any).password || '',
+          host: process.env.NUXT_DRAGONFLY_HOST || process.env.DRAGONFLY_HOST || 'dragonfly',
+          port: Number.parseInt(process.env.NUXT_DRAGONFLY_PORT || process.env.DRAGONFLY_PORT || '6379', 10),
+          password: process.env.NUXT_DRAGONFLY_PASSWORD || process.env.DRAGONFLY_PASSWORD || '',
           db: 0,
         })
 
@@ -31,13 +30,12 @@ export default definePlugin(() => {
 
   // Mount S3/R2 storage (if enabled)
   if (storageConfig.s3) {
-    const s3Config = config.s3 as any
     const driver = s3Driver({
-      accessKeyId: s3Config.accessKeyId,
-      secretAccessKey: s3Config.secretAccessKey,
-      endpoint: s3Config.endpoint,
-      bucket: s3Config.bucket,
-      region: s3Config.region,
+      accessKeyId: process.env.NITRO_S3_ACCESS_KEY_ID,
+      secretAccessKey: process.env.NITRO_S3_SECRET_ACCESS_KEY,
+      endpoint: process.env.NITRO_S3_ENDPOINT,
+      bucket: process.env.NITRO_S3_BUCKET,
+      region: process.env.NITRO_S3_REGION,
     })
 
     storage.mount('r2', driver)

@@ -180,20 +180,6 @@ declare module '@nuxt/schema' {
   interface AppConfig extends BreadcrumbsConfig, SetupConfig {}
 
   interface RuntimeConfig {
-    dragonfly: {
-      host: string
-      port: number
-      password: string
-      url?: string
-    }
-    s3: {
-      accessKeyId: string
-      secretAccessKey: string
-      endpoint: string
-      bucket: string
-      region: string
-      publicUrl: string
-    }
     polar: {
       accessToken: string
       checkoutSuccessUrl: string
@@ -227,6 +213,16 @@ declare module '@nuxt/schema' {
         capacitor?: boolean
         oauthProvider?: boolean
       }
+    }
+  }
+}
+
+declare module 'nitro/types' {
+  interface NitroRuntimeConfig {
+    modules: {
+      redis: boolean
+      s3: boolean
+      disk: boolean
     }
   }
 }
