@@ -191,9 +191,6 @@ importers:
       md-editor-v3:
         specifier: ^6.3.1
         version: 6.3.1(vue@3.5.26(typescript@5.9.3))
-      nitro:
-        specifier: https://pkg.pr.new/nitrojs/nitro@99691fc
-        version: https://pkg.pr.new/nitrojs/nitro@99691fc(@capacitor/preferences@8.0.0(@capacitor/core@8.0.1))(aws4fetch@1.0.20)(chokidar@5.0.0)(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.16.3))(ioredis@5.9.1)(lru-cache@11.2.4)(rolldown@1.0.0-beta.60)(rollup@4.55.1)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(yaml@2.8.2))(xml2js@0.6.2)
       nitro-graphql:
         specifier: ^2.0.0-beta.65
         version: 2.0.0-beta.65(@types/node@25.0.8)(cac@6.7.14)(commander@13.1.0)(crossws@0.4.1(srvx@0.10.0))(graphql-tag@2.12.6(graphql@16.12.0))(graphql-ws@6.0.6(crossws@0.4.1(srvx@0.10.0))(graphql@16.12.0)(ws@8.19.0))(graphql@16.12.0)(magicast@0.5.1)(nitro@https://pkg.pr.new/nitrojs/nitro@99691fc(@capacitor/preferences@8.0.0(@capacitor/core@8.0.1))(aws4fetch@1.0.20)(chokidar@5.0.0)(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.16.3))(ioredis@5.9.1)(lru-cache@11.2.4)(rolldown@1.0.0-beta.60)(rollup@4.55.1)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(yaml@2.8.2))(xml2js@0.6.2))(typescript@5.9.3)
@@ -201,7 +198,7 @@ importers:
         specifier: ^2.4.5
         version: 2.4.5(@nuxt/kit@https://pkg.pr.new/@nuxt/kit@33005(magicast@0.5.1))(@nuxt/schema@https://pkg.pr.new/@nuxt/schema@33005)(defu@6.1.4)
       ofetch:
-        specifier: 2.0.0-alpha.3
+        specifier: ^2.0.0-alpha.3
         version: 2.0.0-alpha.3
       pg:
         specifier: ^8.16.3
@@ -236,9 +233,6 @@ importers:
       vee-validate:
         specifier: 5.0.0-beta.0
         version: 5.0.0-beta.0(vue@3.5.26(typescript@5.9.3))
-      vite-tsconfig-paths:
-        specifier: ^6.0.4
-        version: 6.0.4(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(yaml@2.8.2))
       vue-input-otp:
         specifier: ^0.3.2
         version: 0.3.2(typescript@5.9.3)(vue@3.5.26(typescript@5.9.3))
@@ -248,9 +242,6 @@ importers:
       vue-sonner:
         specifier: ^2.0.9
         version: 2.0.9(@nuxt/kit@https://pkg.pr.new/@nuxt/kit@33005(magicast@0.5.1))(@nuxt/schema@https://pkg.pr.new/@nuxt/schema@33005)(nuxt@https://pkg.pr.new/nuxt@33005(@capacitor/preferences@8.0.0(@capacitor/core@8.0.1))(@parcel/watcher@2.5.4)(@types/node@25.0.8)(@vue/compiler-sfc@3.5.26)(aws4fetch@1.0.20)(cac@6.7.14)(commander@13.1.0)(crossws@0.4.1(srvx@0.10.0))(db0@0.3.4(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.16.3)))(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.16.3))(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.1)(lightningcss@1.30.2)(lru-cache@11.2.4)(magicast@0.5.1)(nf3@0.3.4)(optionator@0.9.4)(rolldown@1.0.0-beta.60)(rollup@4.55.1)(stylus@0.57.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(xml2js@0.6.2)(yaml@2.8.2))
-      vue-tsc:
-        specifier: ^3.2.2
-        version: 3.2.2(typescript@5.9.3)
       zod:
         specifier: ^4.3.5
         version: 4.3.5
@@ -279,6 +270,9 @@ importers:
       eslint:
         specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
+      nitro:
+        specifier: https://pkg.pr.new/nitrojs/nitro@99691fc
+        version: https://pkg.pr.new/nitrojs/nitro@99691fc(@capacitor/preferences@8.0.0(@capacitor/core@8.0.1))(aws4fetch@1.0.20)(chokidar@5.0.0)(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.16.3))(ioredis@5.9.1)(lru-cache@11.2.4)(rolldown@1.0.0-beta.60)(rollup@4.55.1)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(yaml@2.8.2))(xml2js@0.6.2)
       nuxt:
         specifier: https://pkg.pr.new/nuxt@33005
         version: https://pkg.pr.new/nuxt@33005(@capacitor/preferences@8.0.0(@capacitor/core@8.0.1))(@parcel/watcher@2.5.4)(@types/node@25.0.8)(@vue/compiler-sfc@3.5.26)(aws4fetch@1.0.20)(cac@6.7.14)(commander@13.1.0)(crossws@0.4.1(srvx@0.10.0))(db0@0.3.4(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.16.3)))(drizzle-orm@0.45.1(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.16.3))(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.1)(lightningcss@1.30.2)(lru-cache@11.2.4)(magicast@0.5.1)(nf3@0.3.4)(optionator@0.9.4)(rolldown@1.0.0-beta.60)(rollup@4.55.1)(stylus@0.57.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(xml2js@0.6.2)(yaml@2.8.2)
@@ -291,9 +285,15 @@ importers:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      vite-tsconfig-paths:
+        specifier: ^6.0.4
+        version: 6.0.4(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(stylus@0.57.0)(yaml@2.8.2))
       vue:
         specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
+      vue-tsc:
+        specifier: ^3.2.2
+        version: 3.2.2(typescript@5.9.3)
 
 packages:
 

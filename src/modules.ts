@@ -1,10 +1,10 @@
 import type { ModuleOptions, ModulesConfig } from './types'
 
 // Modules that default to true (core modules)
-export const CORE_MODULES = ['tailwindcss', 'notivue', 'icon', 'colada', 'colorMode', 'vueuse', 'pinia', 'veeValidate', 'graphql', 'persistedState', 'ionic', 'scripts'] as const
+export const CORE_MODULES = ['tailwindcss', 'notivue', 'icon', 'colada', 'colorMode', 'vueuse', 'pinia', 'veeValidate', 'persistedState', 'scripts'] as const
 
 // Modules that default to false (opt-in modules)
-export const OPTIONAL_MODULES = ['sentry'] as const
+export const OPTIONAL_MODULES = ['sentry', 'ionic', 'graphql'] as const
 
 export type CoreModuleKey = typeof CORE_MODULES[number]
 export type OptionalModuleKey = typeof OPTIONAL_MODULES[number]

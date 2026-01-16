@@ -16,6 +16,7 @@ import {
   setupTypeScript,
   setupVite,
 } from './setup'
+import { checkDependencies } from './utils/check-deps'
 import { isMobileBuild, mobileBaseURL } from './utils/mobile'
 // Import types for augmentation
 import './types'
@@ -48,7 +49,8 @@ export default defineNuxtModule<ModuleOptions>({
     npm: false,
   },
   async moduleDependencies(nuxt) {
-    return getModuleDependencies(nuxt)
+    const deps = getModuleDependencies(nuxt)
+    return deps
   },
   async setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
@@ -59,6 +61,17 @@ export default defineNuxtModule<ModuleOptions>({
     const isEnabled = createModuleChecker(nuxt.options.abckit)
     const isSentryEnabled = isEnabled('sentry', 'sentry')
     const isGraphqlEnabled = isEnabled('graphql', 'graphql')
+    const isIonicEnabled = isEnabled('ionic')
+
+    // Check for missing peer dependencies in dev mode
+    if (nuxt.options.dev) {
+      checkDependencies(nuxt, {
+        core: true,
+        graphql: isGraphqlEnabled,
+        ionic: isIonicEnabled,
+        sentry: isSentryEnabled,
+      })
+    }
 
     // Setup
     setupDevtools(nuxt)
