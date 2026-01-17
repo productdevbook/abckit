@@ -10,7 +10,6 @@ import {
   H3_TYPE_TEMPLATE,
   IMGPROXY_DEFAULTS,
   NPM_TS_PATHS,
-  STORAGE_DEFAULTS,
   VITE_EXCLUDE_PACKAGES,
 } from './constants'
 import { isMobileBuild, mobileBaseURL } from './utils/mobile'
@@ -31,7 +30,19 @@ export async function setupRuntimeConfig(nuxt: Nuxt, options: ModuleOptions, isS
 
   // Server runtime configs
   nuxt.options.runtimeConfig.imgproxy = defu(nuxt.options.runtimeConfig.imgproxy, IMGPROXY_DEFAULTS)
-  nuxt.options.runtimeConfig.storage = defu(nuxt.options.runtimeConfig.storage, STORAGE_DEFAULTS)
+  nuxt.options.runtimeConfig.modules = defu(nuxt.options.runtimeConfig.modules, {
+    s3: options.modules?.s3 ?? false,
+    redis: options.modules?.redis ?? false,
+    disk: options.modules?.disk ?? false,
+  })
+
+  await updateRuntimeConfig({
+    modules: {
+      s3: options.modules?.s3 ?? false,
+      redis: options.modules?.redis ?? false,
+      disk: options.modules?.disk ?? false,
+    },
+  })
 
   // Public runtime config
   nuxt.options.runtimeConfig.public = defu(nuxt.options.runtimeConfig.public, {
@@ -39,16 +50,6 @@ export async function setupRuntimeConfig(nuxt: Nuxt, options: ModuleOptions, isS
     isMobile: isMobileBuild,
     debug: nuxt.options.dev,
     imgproxy: IMGPROXY_DEFAULTS,
-  })
-
-  await updateRuntimeConfig({
-    modules: defu(options.modules, {
-      s3: false,
-      graphql: false,
-      redis: false,
-      disk: false,
-      ionic: false,
-    }),
   })
 }
 

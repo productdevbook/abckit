@@ -40,6 +40,10 @@ export default defineNuxtModule<ModuleOptions>({
     modules: {
       all: false,
       sentry: false,
+      graphql: false,
+      s3: false,
+      redis: false,
+      disk: false,
     },
     auth: {
       baseURL: isMobileBuild ? mobileBaseURL : undefined,

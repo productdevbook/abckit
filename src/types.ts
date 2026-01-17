@@ -142,6 +142,24 @@ export interface ModulesConfig {
    * @default false (or true if all: true)
    */
   sentry?: boolean
+
+  /**
+   * Enable Redis/Dragonfly storage driver
+   * @default false
+   */
+  redis?: boolean
+
+  /**
+   * Enable S3/R2 storage driver
+   * @default false
+   */
+  s3?: boolean
+
+  /**
+   * Enable local disk storage driver
+   * @default false
+   */
+  disk?: boolean
 }
 
 export interface ModuleOptions {
