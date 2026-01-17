@@ -85,7 +85,7 @@ export const NPM_TS_PATHS = {
 
 // H3 type template
 export const H3_TYPE_TEMPLATE = `
-declare module 'h3' {
+declare module 'nitro/h3' {
   interface H3EventContext {
     auth: {
       user: {
