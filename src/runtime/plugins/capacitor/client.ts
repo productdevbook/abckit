@@ -1,7 +1,3 @@
-// Type-only imports (don't cause build-time evaluation)
-import type { App as AppType } from '@capacitor/app'
-import type { Browser as BrowserType } from '@capacitor/browser'
-import type { Preferences as PreferencesType } from '@capacitor/preferences'
 import type { BetterAuthClientPlugin, ClientStore } from 'better-auth'
 import { safeJSONParse } from '@better-auth/core/utils/json'
 import {
@@ -10,44 +6,87 @@ import {
   stripSecureCookiePrefix,
 } from 'better-auth/cookies'
 
-// Lazy-loaded module references
-let _Preferences: typeof PreferencesType | null = null
-let _Browser: typeof BrowserType | null = null
-let _App: typeof AppType | null = null
+// Lazy-loaded module references (cached to avoid re-importing)
+let _PreferencesMod: typeof import('@capacitor/preferences') | null = null
+let _BrowserMod: typeof import('@capacitor/browser') | null = null
+let _AppMod: typeof import('@capacitor/app') | null = null
 
-async function getPreferences(): Promise<typeof PreferencesType> {
-  if (!_Preferences) {
-    const mod = await import('@capacitor/preferences')
-    _Preferences = mod.Preferences
+async function getPreferencesMod() {
+  if (!_PreferencesMod) {
+    _PreferencesMod = await import('@capacitor/preferences')
   }
-  return _Preferences
+  return _PreferencesMod
 }
 
-async function getBrowser(): Promise<typeof BrowserType> {
-  if (!_Browser) {
-    const mod = await import('@capacitor/browser')
-    _Browser = mod.Browser
+async function getBrowserMod() {
+  if (!_BrowserMod) {
+    _BrowserMod = await import('@capacitor/browser')
   }
-  return _Browser
+  return _BrowserMod
 }
 
-async function getApp(): Promise<typeof AppType> {
-  if (!_App) {
-    const mod = await import('@capacitor/app')
-    _App = mod.App
+async function getAppMod() {
+  if (!_AppMod) {
+    _AppMod = await import('@capacitor/app')
   }
-  return _App
+  return _AppMod
 }
 
 /**
  * Synchronous platform check using window.Capacitor global
  * Safe to call at build time (returns false when window is undefined)
  */
-function isNativePlatform(): boolean {
+export function isNativePlatform(): boolean {
   if (typeof window === 'undefined')
     return false
   const win = window as { Capacitor?: { isNativePlatform?: () => boolean } }
   return win.Capacitor?.isNativePlatform?.() ?? false
+}
+
+export interface GetCapacitorAuthTokenOptions {
+  /**
+   * Prefix for storage keys
+   * @default 'better-auth'
+   */
+  storagePrefix?: string
+  /**
+   * Cookie prefix used by better-auth
+   * @default 'better-auth'
+   */
+  cookiePrefix?: string
+}
+
+/**
+ * Get the bearer token from Capacitor Preferences storage
+ * Useful for adding Authorization header to fetch requests in native apps
+ * @returns The bearer token or null if not found/not native
+ */
+export async function getCapacitorAuthToken(opts?: GetCapacitorAuthTokenOptions): Promise<string | null> {
+  if (!isNativePlatform())
+    return null
+
+  const storagePrefix = opts?.storagePrefix || 'better-auth'
+  const cookiePrefix = opts?.cookiePrefix || 'better-auth'
+  const cookieName = `${storagePrefix}_cookie`
+
+  try {
+    const { Preferences } = await getPreferencesMod()
+    const storedCookie = (await Preferences.get({ key: normalizeCookieName(cookieName) }))?.value
+
+    if (!storedCookie)
+      return null
+
+    const cookieData = JSON.parse(storedCookie) as Record<string, StoredCookie>
+    // Try secure prefix first, then regular
+    const tokenKey = cookieData[`${SECURE_COOKIE_PREFIX}${cookiePrefix}.session_token`]
+      ? `${SECURE_COOKIE_PREFIX}${cookiePrefix}.session_token`
+      : `${cookiePrefix}.session_token`
+
+    return cookieData[tokenKey]?.value || null
+  }
+  catch {
+    return null
+  }
 }
 
 // Lazy initialization for managers - must be runtime, not build time
@@ -156,14 +195,11 @@ export function getCookie(cookie: string): string {
     return ''
   }
 
-  const toSend = Object.entries(parsed).reduce((acc, [key, value]) => {
-    if (value.expires && new Date(value.expires) < new Date()) {
-      return acc
-    }
-    return `${acc}; ${key}=${value.value}`
-  }, '')
+  const validCookies = Object.entries(parsed)
+    .filter(([, value]) => !value.expires || new Date(value.expires) >= new Date())
+    .map(([key, value]) => `${key}=${value.value}`)
 
-  return toSend
+  return validCookies.join('; ')
 }
 
 /**
@@ -296,7 +332,7 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
          * Get stored cookie string for manual fetch requests
          */
         getCookie: async () => {
-          const Preferences = await getPreferences()
+          const { Preferences } = await getPreferencesMod()
           const result = await Preferences.get({ key: normalizeCookieName(cookieName) })
           return getCookie(result?.value || '{}')
         },
@@ -305,7 +341,7 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
          * Get cached session data for offline use
          */
         getCachedSession: async () => {
-          const Preferences = await getPreferences()
+          const { Preferences } = await getPreferencesMod()
           const result = await Preferences.get({ key: normalizeCookieName(localCacheName) })
           if (!result?.value)
             return null
@@ -321,7 +357,7 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
          * Clear all stored auth data
          */
         clearStorage: async () => {
-          const Preferences = await getPreferences()
+          const { Preferences } = await getPreferencesMod()
           await Preferences.remove({ key: normalizeCookieName(cookieName) })
           await Preferences.remove({ key: normalizeCookieName(localCacheName) })
         },
@@ -337,7 +373,7 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
             if (!isNativePlatform())
               return
 
-            const Preferences = await getPreferences()
+            const { Preferences } = await getPreferencesMod()
             const normalizedCookieName = normalizeCookieName(cookieName)
 
             // Handle set-auth-token header (Better Auth's token response)
@@ -345,9 +381,16 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
             if (authToken) {
               const prefixStr = Array.isArray(cookiePrefix) ? cookiePrefix[0] : cookiePrefix
               const prevCookie = (await Preferences.get({ key: normalizedCookieName }))?.value
-              // Store with proper cookie prefix (e.g., 'better-auth.session_token')
-              const tokenCookie = `${prefixStr}.session_token=${authToken}`
-              const newCookie = getSetCookie(tokenCookie, prevCookie ?? undefined)
+
+              // Store token with BOTH prefixed and non-prefixed names
+              // This ensures compatibility regardless of server's useSecureCookies setting
+              // Server will find whichever cookie name it's looking for
+              const baseCookieName = `${prefixStr}.session_token`
+              const secureCookieName = `${SECURE_COOKIE_PREFIX}${baseCookieName}`
+
+              // Create cookie header with both versions
+              const tokenCookies = `${baseCookieName}=${authToken}, ${secureCookieName}=${authToken}`
+              const newCookie = getSetCookie(tokenCookies, prevCookie ?? undefined)
 
               if (hasSessionCookieChanged(prevCookie ?? null, newCookie)) {
                 await Preferences.set({ key: normalizedCookieName, value: newCookie })
@@ -399,7 +442,7 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
               && !context.request?.body?.includes?.('idToken') // idToken is for silent sign-in
               && scheme
             ) {
-              const [Browser, App] = await Promise.all([getBrowser(), getApp()])
+              const [{ Browser }, { App }] = await Promise.all([getBrowserMod(), getAppMod()])
 
               const callbackURL = JSON.parse(context.request.body)?.callbackURL
               const signInURL = context.data?.url as string
@@ -458,18 +501,33 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
           }
           await initializeManagers()
 
-          const Preferences = await getPreferences()
+          const { Preferences } = await getPreferencesMod()
           const normalizedCookieName = normalizeCookieName(cookieName)
 
           // Add stored cookie to request headers
           const storedCookie = (await Preferences.get({ key: normalizedCookieName }))?.value
-          const cookie = getCookie(storedCookie || '{}')
+
+          // Extract bearer token from stored cookies
+          let bearerToken: string | null = null
+          try {
+            const cookieData = JSON.parse(storedCookie || '{}') as Record<string, StoredCookie>
+            // Try secure prefix first, then regular
+            const prefixStr = Array.isArray(cookiePrefix) ? cookiePrefix[0] : cookiePrefix
+            const tokenKey = cookieData[`${SECURE_COOKIE_PREFIX}${prefixStr}.session_token`]
+              ? `${SECURE_COOKIE_PREFIX}${prefixStr}.session_token`
+              : `${prefixStr}.session_token`
+            bearerToken = cookieData[tokenKey]?.value || null
+          }
+          catch {
+            // Invalid JSON, ignore
+          }
 
           options = options || {}
           options.credentials = 'omit'
+          // Cookie header is forbidden in fetch, use Authorization instead
           options.headers = {
             ...options.headers,
-            cookie,
+            ...(bearerToken ? { Authorization: `Bearer ${bearerToken}` } : {}),
           }
 
           // Add Capacitor-specific headers when scheme is configured

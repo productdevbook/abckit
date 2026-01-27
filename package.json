@@ -1,7 +1,7 @@
 {
   "name": "abckit",
   "type": "module",
-  "version": "0.0.64",
+  "version": "0.0.73",
   "description": "Nuxt 4 module — UI components, auth, storage, GraphQL",
   "author": "productdevbook",
   "license": "MIT",
@@ -100,7 +100,7 @@
   },
   "peerDependencies": {
     "@better-auth/oauth-provider": "^1.4.12",
-    "better-auth-nuxt": "^0.0.2-beta.23",
+    "better-auth-nuxt": "^0.0.2-beta.24",
     "@capacitor/android": "^8.0.1",
     "@capacitor/app": "^8.0.0",
     "@capacitor/browser": "^8.0.0",

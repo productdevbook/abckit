@@ -16,4 +16,4 @@ export function getLocalIP(): string {
 }
 
 export const localIP = isMobileDev ? getLocalIP() : null
-export const mobileBaseURL = isMobileDev ? `http://${localIP}:3000` : 'https://e.sayfa.app'
+export const mobileBaseURL = isMobileDev ? `http://${localIP}:3000` : ''
