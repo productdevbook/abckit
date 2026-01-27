@@ -1,7 +1,12 @@
 import type { Preferences as PreferencesType } from '@capacitor/preferences'
 import type { BetterAuthClientPlugin, ClientStore } from 'better-auth'
 import type { FocusManager, OnlineManager } from 'better-auth/client'
+import { safeJSONParse } from '@better-auth/core/utils/json'
 import { kFocusManager, kOnlineManager } from 'better-auth/client'
+import {
+  SECURE_COOKIE_PREFIX,
+  stripSecureCookiePrefix,
+} from 'better-auth/cookies'
 
 // Lazy-loaded Preferences module to avoid import errors on web
 let Preferences: typeof PreferencesType | null = null
@@ -31,6 +36,16 @@ interface CapacitorClientOptions {
    * @default 'better-auth'
    */
   cookiePrefix?: string | string[]
+  /**
+   * App scheme for deep links (e.g., 'myapp')
+   * Used for OAuth callback URLs
+   */
+  scheme?: string
+  /**
+   * Disable session caching
+   * @default false
+   */
+  disableCache?: boolean
 }
 
 // ============================================
@@ -40,6 +55,7 @@ type FocusListener = (focused: boolean) => void
 
 class CapacitorFocusManager implements FocusManager {
   listeners = new Set<FocusListener>()
+  isFocused: boolean | undefined
   unsubscribe?: () => void
 
   subscribe(listener: FocusListener) {
@@ -50,6 +66,10 @@ class CapacitorFocusManager implements FocusManager {
   }
 
   setFocused(focused: boolean) {
+    // Deduplicate - don't notify if state hasn't changed
+    if (this.isFocused === focused)
+      return
+    this.isFocused = focused
     this.listeners.forEach(listener => listener(focused))
   }
 
@@ -97,6 +117,9 @@ class CapacitorOnlineManager implements OnlineManager {
   }
 
   setOnline(online: boolean) {
+    // Deduplicate - don't notify if state hasn't changed
+    if (this.isOnline === online)
+      return
     this.isOnline = online
     this.listeners.forEach(listener => listener(online))
   }
@@ -204,6 +227,15 @@ function splitSetCookieHeader(setCookie: string): string[] {
 }
 
 /**
+ * Normalize cookie name for storage compatibility
+ * Replaces colons with underscores (fixes secure store issues)
+ * @see https://github.com/better-auth/better-auth/issues/5426
+ */
+function normalizeCookieName(name: string): string {
+  return name.replace(/:/g, '_')
+}
+
+/**
  * Merge new cookies with existing ones
  */
 function mergeCookies(setCookieHeader: string, prevCookie?: string): string {
@@ -274,9 +306,9 @@ function hasBetterAuthCookies(setCookieHeader: string, cookiePrefix: string | st
   const cookieSuffixes = ['session_token', 'session_data']
   const prefixes = Array.isArray(cookiePrefix) ? cookiePrefix : [cookiePrefix]
 
-  for (const name of cookies.keys()) {
-    // Remove __Secure- prefix if present
-    const nameWithoutSecure = name.startsWith('__Secure-') ? name.slice(9) : name
+  for (const name of Array.from(cookies.keys())) {
+    // Remove __Secure- prefix if present using official utility
+    const nameWithoutSecure = stripSecureCookiePrefix(name)
 
     for (const prefix of prefixes) {
       if (prefix) {
@@ -317,7 +349,7 @@ function hasSessionCookieChanged(prevCookie: string | null, newCookie: string): 
         sessionKeys.add(key)
     }
 
-    for (const key of sessionKeys) {
+    for (const key of Array.from(sessionKeys)) {
       if (prev[key]?.value !== next[key]?.value)
         return true
     }
@@ -330,6 +362,47 @@ function hasSessionCookieChanged(prevCookie: string | null, newCookie: string): 
 }
 
 /**
+ * Get OAuth state value from stored cookies
+ * Supports both secure-prefixed and unprefixed cookie naming conventions
+ */
+function getOAuthStateValue(
+  cookieJson: string | null,
+  cookiePrefix: string | string[],
+): string | null {
+  if (!cookieJson)
+    return null
+
+  const parsed = safeJSONParse<Record<string, StoredCookie>>(cookieJson)
+  if (!parsed)
+    return null
+
+  const prefixes = Array.isArray(cookiePrefix) ? cookiePrefix : [cookiePrefix]
+
+  for (const prefix of prefixes) {
+    // cookie strategy uses: <prefix>.oauth_state
+    const candidates = [
+      `${SECURE_COOKIE_PREFIX}${prefix}.oauth_state`,
+      `${prefix}.oauth_state`,
+    ]
+
+    for (const name of candidates) {
+      const value = parsed?.[name]?.value
+      if (value)
+        return value
+    }
+  }
+
+  return null
+}
+
+/**
+ * Get the origin URL for the app scheme
+ */
+function getOrigin(scheme: string): string {
+  return `${scheme}://`
+}
+
+/**
  * Capacitor client plugin for Better Auth
  * Provides offline-first authentication with persistent storage
  */
@@ -337,8 +410,9 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
   let store: ClientStore | null = null
   const storagePrefix = opts?.storagePrefix || 'better-auth'
   const cookiePrefix = opts?.cookiePrefix || 'better-auth'
-  const cookieName = `${storagePrefix}_cookie`
-  const sessionCacheName = `${storagePrefix}_session`
+  const cookieName = normalizeCookieName(`${storagePrefix}_cookie`)
+  const sessionCacheName = normalizeCookieName(`${storagePrefix}_session`)
+  const scheme = opts?.scheme
 
   return {
     id: 'capacitor',
@@ -393,9 +467,10 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
             // Handle set-auth-token header (Better Auth's token response)
             const authToken = context.response.headers.get('set-auth-token')
             if (authToken) {
+              const prefixStr = Array.isArray(cookiePrefix) ? cookiePrefix[0] : cookiePrefix
               const prevCookie = (await prefs.get({ key: cookieName }))?.value
               // Store with proper cookie prefix (e.g., 'better-auth.session_token')
-              const tokenCookie = `${cookiePrefix}.session_token=${authToken}`
+              const tokenCookie = `${prefixStr}.session_token=${authToken}`
               const newCookie = mergeCookies(tokenCookie, prevCookie ?? undefined)
 
               if (hasSessionCookieChanged(prevCookie ?? null, newCookie)) {
@@ -428,13 +503,82 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
             }
 
             // Cache session data for offline use
-            if (context.request.url.toString().includes('/get-session')) {
+            if (
+              context.request.url.toString().includes('/get-session')
+              && !opts?.disableCache
+            ) {
               if (context.data?.session || context.data?.user) {
                 await prefs.set({
                   key: sessionCacheName,
                   value: JSON.stringify(context.data),
                 })
               }
+            }
+
+            // Handle OAuth redirect for social sign-in
+            if (
+              context.data?.redirect
+              && (context.request.url.toString().includes('/sign-in')
+                || context.request.url.toString().includes('/link-social'))
+              && !context.request?.body?.includes?.('idToken') // idToken is for silent sign-in
+              && scheme
+            ) {
+              let Browser: typeof import('@capacitor/browser') | undefined
+
+              try {
+                Browser = await import('@capacitor/browser')
+              }
+              catch {
+                throw new Error(
+                  '"@capacitor/browser" is not installed as a dependency!',
+                )
+              }
+
+              const signInURL = context.data?.url
+
+              const storedCookieJson = (await prefs.get({ key: cookieName }))?.value
+              const oauthStateValue = getOAuthStateValue(storedCookieJson ?? null, cookiePrefix)
+
+              const params = new URLSearchParams({ authorizationURL: signInURL })
+              if (oauthStateValue) {
+                params.append('oauthState', oauthStateValue)
+              }
+
+              // Get base URL from request
+              const requestUrl = new URL(context.request.url)
+              const baseURL = `${requestUrl.protocol}//${requestUrl.host}`
+              const proxyURL = `${baseURL}/expo-authorization-proxy?${params.toString()}`
+
+              // Open browser for OAuth
+              await Browser.Browser.open({ url: proxyURL })
+
+              // Listen for deep link callback
+              const { App } = await import('@capacitor/app')
+              const handle = await App.addListener('appUrlOpen', async ({ url }) => {
+                try {
+                  const urlObj = new URL(url)
+                  const cookie = urlObj.searchParams.get('cookie')
+                  if (cookie) {
+                    const prevCookie = (await prefs.get({ key: cookieName }))?.value
+                    const newCookie = mergeCookies(cookie, prevCookie ?? undefined)
+                    await prefs.set({ key: cookieName, value: newCookie })
+                    store?.notify('$sessionSignal')
+                  }
+                }
+                catch {
+                  // Invalid URL, ignore
+                }
+                finally {
+                  // Close browser and remove listener
+                  try {
+                    await Browser?.Browser.close()
+                  }
+                  catch {
+                    // Browser may already be closed
+                  }
+                  handle.remove()
+                }
+              })
             }
           },
         },
@@ -446,11 +590,30 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
           const storedCookie = (await prefs.get({ key: cookieName }))?.value
           const cookie = getCookieString(storedCookie || '{}')
 
-          if (cookie) {
-            options = options || {}
+          options = options || {}
+          options.credentials = 'omit'
+          options.headers = {
+            ...options.headers,
+            cookie,
+          }
+
+          // Add Capacitor-specific headers when scheme is configured
+          if (scheme) {
             options.headers = {
               ...options.headers,
-              cookie,
+              'capacitor-origin': getOrigin(scheme),
+              'x-skip-oauth-proxy': 'true',
+            }
+
+            // Rewrite relative callback URLs to deep link URLs
+            if (options.body?.callbackURL?.startsWith('/')) {
+              options.body.callbackURL = `${scheme}:/${options.body.callbackURL}`
+            }
+            if (options.body?.newUserCallbackURL?.startsWith('/')) {
+              options.body.newUserCallbackURL = `${scheme}:/${options.body.newUserCallbackURL}`
+            }
+            if (options.body?.errorCallbackURL?.startsWith('/')) {
+              options.body.errorCallbackURL = `${scheme}:/${options.body.errorCallbackURL}`
             }
           }
 
