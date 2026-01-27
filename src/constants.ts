@@ -1,10 +1,3 @@
-// Capacitor packages to externalize (optional dependencies)
-export const CAPACITOR_EXTERNAL_PACKAGES = [
-  '@capacitor/preferences',
-  '@capacitor/app',
-  '@capacitor/network',
-] as const
-
 // Vite optimization exclude packages
 export const VITE_EXCLUDE_PACKAGES = [
   'abckit',
@@ -66,7 +59,9 @@ export const ALIAS_PATHS = {
   'abckit/shadcn': './runtime/components/ui',
   'abckit/composables': './runtime/composables',
   'abckit/plugins': './runtime/plugins',
-  'abckit/plugins/capacitor': './runtime/plugins/capacitor-client',
+  'abckit/plugins/capacitor': './runtime/plugins/capacitor',
+  'abckit/plugins/capacitor/client': './runtime/plugins/capacitor/client',
+  'abckit/plugins/capacitor/plugins': './runtime/plugins/capacitor/plugins',
   'abckit/graphql': './runtime/graphql',
   'abckit/stores': './runtime/stores',
   'abckit/utils': './runtime/utils',

@@ -6,7 +6,6 @@ import { defu } from 'defu'
 import {
   ALIAS_PATHS,
   APP_HEAD_LINKS,
-  CAPACITOR_EXTERNAL_PACKAGES,
   H3_TYPE_TEMPLATE,
   IMGPROXY_DEFAULTS,
   NPM_TS_PATHS,
@@ -116,10 +115,10 @@ export function setupNitro(nuxt: Nuxt, resolve: Resolver, isGraphqlEnabled: bool
   }
 
   // Ionic config
-  nuxt.options.ionic = defu(nuxt.options.ionic, {
-    integrations: { icons: false },
-    css: { basic: false, core: true, utilities: false },
-  })
+  // nuxt.options.ionic = defu(nuxt.options.ionic, {
+  //   integrations: { icons: false },
+  //   css: { basic: false, core: true, utilities: false },
+  // })
 
   // Public assets
   nuxt.options.nitro.publicAssets = nuxt.options.nitro.publicAssets || []
@@ -146,12 +145,12 @@ export function setupVite(nuxt: Nuxt): void {
   // This prevents build errors when consuming projects don't have Capacitor installed
   nuxt.options.vite.build = nuxt.options.vite.build || {}
   nuxt.options.vite.build.rollupOptions = nuxt.options.vite.build.rollupOptions || {}
-  const existingExternal = nuxt.options.vite.build.rollupOptions.external
-  const externalSet = new Set<string>(
-    Array.isArray(existingExternal) ? existingExternal.filter((e): e is string => typeof e === 'string') : [],
-  )
-  CAPACITOR_EXTERNAL_PACKAGES.forEach(pkg => externalSet.add(pkg))
-  nuxt.options.vite.build.rollupOptions.external = Array.from(externalSet)
+  // const existingExternal = nuxt.options.vite.build.rollupOptions.external
+  // const externalSet = new Set<string>(
+  //   Array.isArray(existingExternal) ? existingExternal.filter((e): e is string => typeof e === 'string') : [],
+  // )
+  // CAPACITOR_EXTERNAL_PACKAGES.forEach(pkg => externalSet.add(pkg))
+  // nuxt.options.vite.build.rollupOptions.external = Array.from(externalSet)
 
   // Development mode
   if (nuxt.options.dev) {
@@ -252,29 +251,35 @@ export function setupBetterAuth(nuxt: Nuxt, options: ModuleOptions, _resolve: Re
     },
   })
 
-  // Use nuxt-better-auth's config extension hook to inject plugins
+  // Use nuxt-better-auth's client extension hook to inject client plugins
   // @ts-expect-error - hook is provided by nuxt-better-auth module
-  nuxt.hook('better-auth:config:extend', async (config: any) => {
-    const plugins = config.plugins || []
+  nuxt.hook('better-auth:client:extend', (config) => {
+    config.plugins = config.plugins || []
 
-    // Inject admin client plugin
-    const { adminClient } = await import('better-auth/client/plugins')
-    plugins.push(adminClient())
+    config.plugins.push({
+      from: 'better-auth/client/plugins',
+      name: 'twoFactorClient',
+    })
+    config.plugins.push({
+      from: 'better-auth/client/plugins',
+      name: 'adminClient',
+    })
 
     // Inject Capacitor plugin for mobile apps
     if (isCapacitor) {
-      const { capacitorClient } = await import('./runtime/plugins/capacitor-client')
-      plugins.push(capacitorClient({
-        storagePrefix: 'better-auth',
-      }))
+      config.plugins.push({
+        from: 'abckit/plugins/capacitor',
+        name: 'capacitorClient',
+        options: { storagePrefix: 'better-auth' },
+      })
     }
 
     // Inject OAuth provider plugin
     if (options.auth?.oauthProvider) {
-      const { oauthProviderClient } = await import('@better-auth/oauth-provider/client')
-      plugins.push(oauthProviderClient())
+      config.plugins.push({
+        from: '@better-auth/oauth-provider/client',
+        name: 'oauthProviderClient',
+      })
     }
-
-    config.plugins = plugins
   })
 }
