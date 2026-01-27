@@ -30,22 +30,17 @@ export interface SetupConfig {
 
 export interface AuthClientOptions {
   /**
-   * Base URL for Better Auth client
-   * Required for Capacitor/mobile apps where the default URL is not http/https
-   * @example 'https://api.example.com'
+   * Enable Better Auth integration
+   * When false, nuxt-better-auth module is not loaded
+   * @default true
    */
-  baseURL?: string
-
-  /**
-   * Base path for Better Auth API endpoints
-   * @default '/api/auth'
-   */
-  basePath?: string
+  enabled?: boolean
 
   /**
    * Enable Capacitor mode for mobile apps
-   * When enabled, uses Bearer token auth with @capacitor/preferences storage
-   * @default false
+   * Injects Capacitor plugin via better-auth:config:extend hook
+   * Uses Bearer token auth with @capacitor/preferences storage
+   * @default false (or true if MOBILE_BUILD env is set)
    */
   capacitor?: boolean
 
@@ -226,8 +221,6 @@ declare module '@nuxt/schema' {
     abckit: {
       sentry: boolean
       auth: {
-        baseURL?: string
-        basePath?: string
         capacitor?: boolean
         oauthProvider?: boolean
       }

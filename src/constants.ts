@@ -65,8 +65,8 @@ export const ALIAS_PATHS = {
   'abckit/components': './runtime/components',
   'abckit/shadcn': './runtime/components/ui',
   'abckit/composables': './runtime/composables',
-  'abckit/middleware': './runtime/middleware',
   'abckit/plugins': './runtime/plugins',
+  'abckit/plugins/capacitor': './runtime/plugins/capacitor-client',
   'abckit/graphql': './runtime/graphql',
   'abckit/stores': './runtime/stores',
   'abckit/utils': './runtime/utils',
@@ -84,9 +84,14 @@ export const NPM_TS_PATHS = {
 } as const
 
 // H3 type template
+// Note: Auth types are now provided by nuxt-better-auth
+// Use getUserSession(event) or requireUserSession(event) for auth
 export const H3_TYPE_TEMPLATE = `
 declare module 'nitro/h3' {
   interface H3EventContext {
+    /**
+     * @deprecated Use getUserSession(event) or requireUserSession(event) from nuxt-better-auth
+     */
     auth: {
       user: {
         id: string
@@ -96,7 +101,7 @@ declare module 'nitro/h3' {
         image?: string
         createdAt: Date
         updatedAt: Date
-        role: string
+        role?: string
       }
       session: {
         id: string
@@ -113,8 +118,8 @@ declare module 'nitro/h3' {
       statusCode: number
       statusMessage: string
     }
-    isPremium: boolean
-    subscription: any | null
+    isPremium?: boolean
+    subscription?: any | null
   }
 }
 

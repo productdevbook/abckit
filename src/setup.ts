@@ -1,7 +1,7 @@
 import type { Nuxt } from '@nuxt/schema'
 import type { ModuleOptions } from './types'
 import { join } from 'node:path'
-import { addRouteMiddleware, addServerScanDir, addTypeTemplate, updateRuntimeConfig } from '@nuxt/kit'
+import { addPlugin, addServerScanDir, addTypeTemplate, updateRuntimeConfig } from '@nuxt/kit'
 import { defu } from 'defu'
 import {
   ALIAS_PATHS,
@@ -21,9 +21,7 @@ export async function setupRuntimeConfig(nuxt: Nuxt, options: ModuleOptions, isS
   nuxt.options.runtimeConfig.public.abckit = {
     sentry: isSentryEnabled,
     auth: {
-      baseURL: isMobileBuild ? mobileBaseURL : (nuxt.options.runtimeConfig.public.abckit?.auth?.baseURL ?? options.auth?.baseURL),
-      basePath: nuxt.options.runtimeConfig.public.abckit?.auth?.basePath ?? options.auth?.basePath,
-      capacitor: isMobileBuild,
+      capacitor: options.auth?.capacitor ?? isMobileBuild,
       oauthProvider: options.auth?.oauthProvider ?? false,
     },
   }
@@ -195,15 +193,17 @@ export function setupColorMode(nuxt: Nuxt): void {
   } as Partial<typeof nuxt.options.colorMode>)
 }
 
-export function setupRouting(nuxt: Nuxt, resolve: Resolver): void {
+export function setupRouting(nuxt: Nuxt, resolve: Resolver, isAuthEnabled: boolean): void {
   // Server scan
   addServerScanDir(resolve('./runtime/server'))
 
-  // Auth middleware
-  addRouteMiddleware({
-    name: 'auth',
-    path: resolve('./runtime/middleware/auth'),
-  })
+  // Sentry user tracking plugin (requires auth)
+  if (isAuthEnabled) {
+    addPlugin({
+      src: resolve('./runtime/plugins/sentry-user.client'),
+      mode: 'client',
+    })
+  }
 
   // Route rules
   nuxt.options.routeRules = nuxt.options.routeRules || {}
@@ -237,4 +237,44 @@ export function setupDevtools(nuxt: Nuxt): void {
   nuxt.options.devtools = defu(nuxt.options.devtools, {
     enabled: false,
   } satisfies typeof nuxt.options.devtools)
+}
+
+export function setupBetterAuth(nuxt: Nuxt, options: ModuleOptions, _resolve: Resolver): void {
+  const isCapacitor = options.auth?.capacitor ?? isMobileBuild
+
+  // Configure nuxt-better-auth module options
+  // @ts-expect-error - nuxt-better-auth types are provided by consumer's installation
+  nuxt.options['nuxt-better-auth'] = defu(nuxt.options['nuxt-better-auth'] || {}, {
+    clientOnly: isCapacitor,
+    redirects: {
+      login: '/auth/login',
+      guest: '/',
+    },
+  })
+
+  // Use nuxt-better-auth's config extension hook to inject plugins
+  // @ts-expect-error - hook is provided by nuxt-better-auth module
+  nuxt.hook('better-auth:config:extend', async (config: any) => {
+    const plugins = config.plugins || []
+
+    // Inject admin client plugin
+    const { adminClient } = await import('better-auth/client/plugins')
+    plugins.push(adminClient())
+
+    // Inject Capacitor plugin for mobile apps
+    if (isCapacitor) {
+      const { capacitorClient } = await import('./runtime/plugins/capacitor-client')
+      plugins.push(capacitorClient({
+        storagePrefix: 'better-auth',
+      }))
+    }
+
+    // Inject OAuth provider plugin
+    if (options.auth?.oauthProvider) {
+      const { oauthProviderClient } = await import('@better-auth/oauth-provider/client')
+      plugins.push(oauthProviderClient())
+    }
+
+    config.plugins = plugins
+  })
 }

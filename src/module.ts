@@ -5,6 +5,7 @@ import { createModuleChecker, getModuleDependencies } from './modules'
 import {
   setupAliases,
   setupAppHead,
+  setupBetterAuth,
   setupColorMode,
   setupCSS,
   setupDevtools,
@@ -17,7 +18,7 @@ import {
   setupVite,
 } from './setup'
 import { checkDependencies } from './utils/check-deps'
-import { isMobileBuild, mobileBaseURL } from './utils/mobile'
+import { isMobileBuild } from './utils/mobile'
 // Import types for augmentation
 import './types'
 
@@ -46,8 +47,7 @@ export default defineNuxtModule<ModuleOptions>({
       disk: false,
     },
     auth: {
-      baseURL: isMobileBuild ? mobileBaseURL : undefined,
-      basePath: '/api/auth',
+      enabled: true,
       capacitor: isMobileBuild,
     },
     npm: false,
@@ -66,6 +66,7 @@ export default defineNuxtModule<ModuleOptions>({
     const isSentryEnabled = isEnabled('sentry', 'sentry')
     const isGraphqlEnabled = isEnabled('graphql', 'graphql')
     const isIonicEnabled = isEnabled('ionic')
+    const isAuthEnabled = options.auth?.enabled !== false
 
     // Check for missing peer dependencies in dev mode
     if (nuxt.options.dev) {
@@ -89,6 +90,11 @@ export default defineNuxtModule<ModuleOptions>({
     setupAliases(nuxt, resolve)
     setupTypeScript(nuxt)
     setupColorMode(nuxt)
-    setupRouting(nuxt, resolve)
+    setupRouting(nuxt, resolve, isAuthEnabled)
+
+    // Setup Better Auth integration (optional)
+    if (isAuthEnabled) {
+      setupBetterAuth(nuxt, options, resolve)
+    }
   },
 })

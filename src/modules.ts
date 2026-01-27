@@ -48,8 +48,10 @@ export function createModuleChecker(opts: ModuleOptions | undefined) {
 export function getModuleDependencies(nuxt: any): Record<string, any> {
   const opts = nuxt.options.abckit as ModuleOptions | undefined
   const isEnabled = createModuleChecker(opts)
+  const isAuthEnabled = opts?.auth?.enabled !== false
 
   return {
+    'better-auth-nuxt': { optional: !isAuthEnabled },
     '@nuxtjs/tailwindcss': { optional: !isEnabled('tailwindcss') },
     'notivue/nuxt': { optional: !isEnabled('notivue') },
     '@nuxt/icon': { optional: !isEnabled('icon') },

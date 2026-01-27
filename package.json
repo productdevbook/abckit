@@ -1,7 +1,7 @@
 {
   "name": "abckit",
   "type": "module",
-  "version": "0.0.52",
+  "version": "0.0.56",
   "description": "Nuxt 4 module — UI components, auth, storage, GraphQL",
   "author": "productdevbook",
   "license": "MIT",
@@ -62,6 +62,10 @@
     "./colada": {
       "types": "./dist/runtime/colada.options.d.ts",
       "import": "./dist/runtime/colada.options.js"
+    },
+    "./plugins/capacitor": {
+      "types": "./dist/runtime/plugins/capacitor-client.d.ts",
+      "import": "./dist/runtime/plugins/capacitor-client.js"
     }
   },
   "types": "./dist/module.d.mts",
@@ -88,6 +92,7 @@
   },
   "peerDependencies": {
     "@better-auth/oauth-provider": "^1.4.12",
+    "better-auth-nuxt": "^0.0.2-beta.22",
     "@capacitor/android": "^8.0.1",
     "@capacitor/app": "^8.0.0",
     "@capacitor/browser": "^8.0.0",
@@ -163,6 +168,7 @@
   },
   "peerDependenciesMeta": {
     "@better-auth/oauth-provider": { "optional": true },
+    "better-auth-nuxt": { "optional": true },
     "@capacitor/android": { "optional": true },
     "@capacitor/app": { "optional": true },
     "@capacitor/browser": { "optional": true },
