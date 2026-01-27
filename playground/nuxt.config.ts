@@ -8,7 +8,8 @@ export default defineNuxtConfig({
   },
   abckit: {
     modules: {
-      graphql: true,
+      graphql: false,
+      sentry: false,
     },
   },
 })

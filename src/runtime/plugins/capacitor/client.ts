@@ -1,21 +1,68 @@
+// Type-only imports (don't cause build-time evaluation)
+import type { App as AppType } from '@capacitor/app'
+import type { Browser as BrowserType } from '@capacitor/browser'
+import type { Preferences as PreferencesType } from '@capacitor/preferences'
 import type { BetterAuthClientPlugin, ClientStore } from 'better-auth'
 import { safeJSONParse } from '@better-auth/core/utils/json'
-import { App } from '@capacitor/app'
-import { Browser } from '@capacitor/browser'
-import { Capacitor } from '@capacitor/core'
-import { Preferences } from '@capacitor/preferences'
 import {
   parseSetCookieHeader,
   SECURE_COOKIE_PREFIX,
   stripSecureCookiePrefix,
 } from 'better-auth/cookies'
-import { setupCapacitorFocusManager } from './focus-manager'
-import { setupCapacitorOnlineManager } from './online-manager'
 
-const isNative = Capacitor.isNativePlatform()
+// Lazy-loaded module references
+let _Preferences: typeof PreferencesType | null = null
+let _Browser: typeof BrowserType | null = null
+let _App: typeof AppType | null = null
 
-// Initialize managers only on native platforms
-if (isNative) {
+async function getPreferences(): Promise<typeof PreferencesType> {
+  if (!_Preferences) {
+    const mod = await import('@capacitor/preferences')
+    _Preferences = mod.Preferences
+  }
+  return _Preferences
+}
+
+async function getBrowser(): Promise<typeof BrowserType> {
+  if (!_Browser) {
+    const mod = await import('@capacitor/browser')
+    _Browser = mod.Browser
+  }
+  return _Browser
+}
+
+async function getApp(): Promise<typeof AppType> {
+  if (!_App) {
+    const mod = await import('@capacitor/app')
+    _App = mod.App
+  }
+  return _App
+}
+
+/**
+ * Synchronous platform check using window.Capacitor global
+ * Safe to call at build time (returns false when window is undefined)
+ */
+function isNativePlatform(): boolean {
+  if (typeof window === 'undefined')
+    return false
+  const win = window as { Capacitor?: { isNativePlatform?: () => boolean } }
+  return win.Capacitor?.isNativePlatform?.() ?? false
+}
+
+// Lazy initialization for managers - must be runtime, not build time
+let managersInitialized = false
+async function initializeManagers() {
+  if (managersInitialized || !isNativePlatform())
+    return
+  managersInitialized = true
+
+  // Dynamic import managers to avoid build-time evaluation
+  const [{ setupCapacitorFocusManager }, { setupCapacitorOnlineManager }] = await Promise.all([
+    import('./focus-manager'),
+    import('./online-manager'),
+  ])
+
   setupCapacitorFocusManager()
   setupCapacitorOnlineManager()
 }
@@ -242,13 +289,14 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
   return {
     id: 'capacitor',
 
-    getActions: (_$fetch, $store) => {
+    getActions: (_$fetch: unknown, $store: ClientStore) => {
       store = $store
       return {
         /**
          * Get stored cookie string for manual fetch requests
          */
         getCookie: async () => {
+          const Preferences = await getPreferences()
           const result = await Preferences.get({ key: normalizeCookieName(cookieName) })
           return getCookie(result?.value || '{}')
         },
@@ -257,6 +305,7 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
          * Get cached session data for offline use
          */
         getCachedSession: async () => {
+          const Preferences = await getPreferences()
           const result = await Preferences.get({ key: normalizeCookieName(localCacheName) })
           if (!result?.value)
             return null
@@ -272,6 +321,7 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
          * Clear all stored auth data
          */
         clearStorage: async () => {
+          const Preferences = await getPreferences()
           await Preferences.remove({ key: normalizeCookieName(cookieName) })
           await Preferences.remove({ key: normalizeCookieName(localCacheName) })
         },
@@ -283,10 +333,11 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
         id: 'capacitor',
         name: 'Capacitor Auth',
         hooks: {
-          async onSuccess(context) {
-            if (!isNative)
+          async onSuccess(context: { response: Response, data: Record<string, unknown>, request: { url: string | URL, body: string } }) {
+            if (!isNativePlatform())
               return
 
+            const Preferences = await getPreferences()
             const normalizedCookieName = normalizeCookieName(cookieName)
 
             // Handle set-auth-token header (Better Auth's token response)
@@ -348,8 +399,10 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
               && !context.request?.body?.includes?.('idToken') // idToken is for silent sign-in
               && scheme
             ) {
+              const [Browser, App] = await Promise.all([getBrowser(), getApp()])
+
               const callbackURL = JSON.parse(context.request.body)?.callbackURL
-              const signInURL = context.data?.url
+              const signInURL = context.data?.url as string
 
               const storedCookieJson = (await Preferences.get({ key: normalizedCookieName }))?.value
               const oauthStateValue = getOAuthStateValue(storedCookieJson ?? null, cookiePrefix)
@@ -399,11 +452,13 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
           },
         },
 
-        async init(url, options) {
-          if (!isNative) {
+        async init(url: string, options?: RequestInit & { body?: Record<string, string> }) {
+          if (!isNativePlatform()) {
             return { url, options }
           }
+          await initializeManagers()
 
+          const Preferences = await getPreferences()
           const normalizedCookieName = normalizeCookieName(cookieName)
 
           // Add stored cookie to request headers
@@ -463,8 +518,8 @@ export function capacitorClient(opts?: CapacitorClientOptions): BetterAuthClient
 }
 
 // Re-export managers
-export * from './focus-manager'
+export { setupCapacitorFocusManager } from './focus-manager'
+export { setupCapacitorOnlineManager } from './online-manager'
 
-export * from './online-manager'
 // Re-export from better-auth/cookies
 export { parseSetCookieHeader } from 'better-auth/cookies'

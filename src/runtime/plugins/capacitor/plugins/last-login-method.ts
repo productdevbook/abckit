@@ -1,5 +1,16 @@
+import type { Preferences as PreferencesType } from '@capacitor/preferences'
 import type { Awaitable, BetterAuthClientPlugin } from 'better-auth'
-import { Preferences } from '@capacitor/preferences'
+
+// Lazy-loaded Preferences reference
+let _Preferences: typeof PreferencesType | null = null
+
+async function getPreferences(): Promise<typeof PreferencesType> {
+  if (!_Preferences) {
+    const mod = await import('@capacitor/preferences')
+    _Preferences = mod.Preferences
+  }
+  return _Preferences
+}
 
 export interface LastLoginMethodClientConfig {
   /**
@@ -55,6 +66,7 @@ export function lastLoginMethodClient(config?: LastLoginMethodClientConfig): Bet
               return
             }
 
+            const Preferences = await getPreferences()
             await Preferences.set({ key: lastLoginMethodName, value: lastMethod })
           },
         },
@@ -68,6 +80,7 @@ export function lastLoginMethodClient(config?: LastLoginMethodClientConfig): Bet
          * @returns The last used login method or null if not found
          */
         getLastUsedLoginMethod: async (): Promise<string | null> => {
+          const Preferences = await getPreferences()
           const result = await Preferences.get({ key: lastLoginMethodName })
           return result?.value ?? null
         },
@@ -75,6 +88,7 @@ export function lastLoginMethodClient(config?: LastLoginMethodClientConfig): Bet
          * Clear the last used login method from storage
          */
         clearLastUsedLoginMethod: async () => {
+          const Preferences = await getPreferences()
           await Preferences.remove({ key: lastLoginMethodName })
         },
         /**
@@ -83,6 +97,7 @@ export function lastLoginMethodClient(config?: LastLoginMethodClientConfig): Bet
          * @returns True if the method was the last used, false otherwise
          */
         isLastUsedLoginMethod: async (method: string): Promise<boolean> => {
+          const Preferences = await getPreferences()
           const result = await Preferences.get({ key: lastLoginMethodName })
           return result?.value === method
         },

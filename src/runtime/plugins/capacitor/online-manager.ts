@@ -1,8 +1,19 @@
+import type { Network as NetworkType } from '@capacitor/network'
 import type { OnlineManager } from 'better-auth/client'
-import { Network } from '@capacitor/network'
 import { kOnlineManager } from 'better-auth/client'
 
 type OnlineListener = (online: boolean) => void
+
+// Lazy-loaded Network reference
+let _Network: typeof NetworkType | null = null
+
+async function getNetwork(): Promise<typeof NetworkType> {
+  if (!_Network) {
+    const mod = await import('@capacitor/network')
+    _Network = mod.Network
+  }
+  return _Network
+}
 
 class CapacitorOnlineManager implements OnlineManager {
   listeners = new Set<OnlineListener>()
@@ -25,12 +36,17 @@ class CapacitorOnlineManager implements OnlineManager {
   }
 
   setup() {
-    Network.addListener('networkStatusChange', (status) => {
-      this.setOnline(status.connected)
-    }).then((handle) => {
-      this.unsubscribe = () => handle.remove()
+    getNetwork().then((Network) => {
+      Network.addListener('networkStatusChange', (status) => {
+        this.setOnline(status.connected)
+      }).then((handle) => {
+        this.unsubscribe = () => handle.remove()
+      }).catch(() => {
+        // Network plugin not available, fallback to always online
+        this.setOnline(true)
+      })
     }).catch(() => {
-      // Network plugin not available, fallback to always online
+      // Failed to load Network module, fallback to always online
       this.setOnline(true)
     })
 
