@@ -1,5 +1,5 @@
 import type { BetterAuthClientPlugin, ClientStore } from 'better-auth'
-import { safeJSONParse } from '@better-auth/core/utils/json'
+import { safeJSONParse } from '@better-auth/core/utils'
 import {
   parseSetCookieHeader,
   SECURE_COOKIE_PREFIX,

@@ -1,7 +1,7 @@
 {
   "name": "abckit",
   "type": "module",
-  "version": "0.0.73",
+  "version": "0.0.74",
   "description": "Nuxt 4 module — UI components, auth, storage, GraphQL",
   "author": "productdevbook",
   "license": "MIT",
@@ -92,6 +92,7 @@
     "release": "pnpm publish --no-git-checks --access public"
   },
   "dependencies": {
+    "@better-auth/core": "^1.4.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "consola": "^3.4.2",
@@ -100,7 +101,6 @@
   },
   "peerDependencies": {
     "@better-auth/oauth-provider": "^1.4.12",
-    "better-auth-nuxt": "^0.0.2-beta.24",
     "@capacitor/android": "^8.0.1",
     "@capacitor/app": "^8.0.0",
     "@capacitor/browser": "^8.0.0",
@@ -143,6 +143,7 @@
     "apiful": "^4.0.1",
     "aws4fetch": "^1.0.20",
     "better-auth": "^1.4.12",
+    "better-auth-nuxt": "^0.0.2-beta.24",
     "capacitor-native-settings": "^7.0.2",
     "dataloader": "^2.2.3",
     "date-fns": "^4.1.0",
@@ -175,69 +176,159 @@
     "zod": "^4.3.5"
   },
   "peerDependenciesMeta": {
-    "@better-auth/oauth-provider": { "optional": true },
-    "better-auth-nuxt": { "optional": true },
-    "@capacitor/android": { "optional": true },
-    "@capacitor/app": { "optional": true },
-    "@capacitor/browser": { "optional": true },
-    "@capacitor/cli": { "optional": true },
-    "@capacitor/core": { "optional": true },
-    "@capacitor/device": { "optional": true },
-    "@capacitor/geolocation": { "optional": true },
-    "@capacitor/haptics": { "optional": true },
-    "@capacitor/ios": { "optional": true },
-    "@capacitor/network": { "optional": true },
-    "@capacitor/preferences": { "optional": true },
-    "@capacitor/push-notifications": { "optional": true },
-    "@capacitor/splash-screen": { "optional": true },
-    "@capacitor/status-bar": { "optional": true },
-    "@capgo/capacitor-social-login": { "optional": true },
-    "@graphql-tools/utils": { "optional": true },
-    "@ionic/vue": { "optional": true },
-    "@nuxtjs/i18n": { "optional": true },
-    "@nuxtjs/ionic": { "optional": true },
-    "@openfga/sdk": { "optional": true },
-    "@polar-sh/sdk": { "optional": true },
-    "@sentry/nuxt": { "optional": true },
-    "@tailwindcss/typography": { "optional": true },
-    "@tanstack/vue-table": { "optional": true },
-    "@unovis/vue": { "optional": true },
-    "@vueuse/router": { "optional": true },
-    "@vueuse/sound": { "optional": true },
-    "apiful": { "optional": true },
-    "aws4fetch": { "optional": true },
-    "capacitor-native-settings": { "optional": true },
-    "dataloader": { "optional": true },
-    "drizzle-kit": { "optional": true },
-    "drizzle-orm": { "optional": true },
-    "drizzle-zod": { "optional": true },
-    "graphql": { "optional": true },
-    "graphql-config": { "optional": true },
-    "graphql-scalars": { "optional": true },
-    "graphql-yoga": { "optional": true },
-    "ioredis": { "optional": true },
-    "md-editor-v3": { "optional": true },
-    "nitro-graphql": { "optional": true },
-    "pg": { "optional": true },
-    "unstorage": { "optional": true }
+    "@better-auth/oauth-provider": {
+      "optional": true
+    },
+    "better-auth-nuxt": {
+      "optional": true
+    },
+    "@capacitor/android": {
+      "optional": true
+    },
+    "@capacitor/app": {
+      "optional": true
+    },
+    "@capacitor/browser": {
+      "optional": true
+    },
+    "@capacitor/cli": {
+      "optional": true
+    },
+    "@capacitor/core": {
+      "optional": true
+    },
+    "@capacitor/device": {
+      "optional": true
+    },
+    "@capacitor/geolocation": {
+      "optional": true
+    },
+    "@capacitor/haptics": {
+      "optional": true
+    },
+    "@capacitor/ios": {
+      "optional": true
+    },
+    "@capacitor/network": {
+      "optional": true
+    },
+    "@capacitor/preferences": {
+      "optional": true
+    },
+    "@capacitor/push-notifications": {
+      "optional": true
+    },
+    "@capacitor/splash-screen": {
+      "optional": true
+    },
+    "@capacitor/status-bar": {
+      "optional": true
+    },
+    "@capgo/capacitor-social-login": {
+      "optional": true
+    },
+    "@graphql-tools/utils": {
+      "optional": true
+    },
+    "@ionic/vue": {
+      "optional": true
+    },
+    "@nuxtjs/i18n": {
+      "optional": true
+    },
+    "@nuxtjs/ionic": {
+      "optional": true
+    },
+    "@openfga/sdk": {
+      "optional": true
+    },
+    "@polar-sh/sdk": {
+      "optional": true
+    },
+    "@sentry/nuxt": {
+      "optional": true
+    },
+    "@tailwindcss/typography": {
+      "optional": true
+    },
+    "@tanstack/vue-table": {
+      "optional": true
+    },
+    "@unovis/vue": {
+      "optional": true
+    },
+    "@vueuse/router": {
+      "optional": true
+    },
+    "@vueuse/sound": {
+      "optional": true
+    },
+    "apiful": {
+      "optional": true
+    },
+    "aws4fetch": {
+      "optional": true
+    },
+    "capacitor-native-settings": {
+      "optional": true
+    },
+    "dataloader": {
+      "optional": true
+    },
+    "drizzle-kit": {
+      "optional": true
+    },
+    "drizzle-orm": {
+      "optional": true
+    },
+    "drizzle-zod": {
+      "optional": true
+    },
+    "graphql": {
+      "optional": true
+    },
+    "graphql-config": {
+      "optional": true
+    },
+    "graphql-scalars": {
+      "optional": true
+    },
+    "graphql-yoga": {
+      "optional": true
+    },
+    "ioredis": {
+      "optional": true
+    },
+    "md-editor-v3": {
+      "optional": true
+    },
+    "nitro-graphql": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    },
+    "unstorage": {
+      "optional": true
+    }
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.0.0",
+    "@antfu/eslint-config": "^7.2.0",
     "@nuxt/eslint": "latest",
     "@nuxt/kit": "https://pkg.pr.new/@nuxt/kit@33005",
     "@nuxt/module-builder": "^1.0.2",
     "@nuxt/schema": "https://pkg.pr.new/@nuxt/schema@33005",
-    "@types/node": "^25.0.8",
+    "@types/node": "^25.0.10",
     "@types/pg": "^8.16.0",
     "eslint": "^9.39.2",
-    "nitro": "https://pkg.pr.new/nitrojs/nitro@99691fc",
+    "nitro": "3.0.1-alpha.2",
     "nuxt": "https://pkg.pr.new/nuxt@33005",
-    "rolldown": "1.0.0-beta.60",
+    "rolldown": "1.0.0-rc.1",
     "shadcn-vue": "^2.4.3",
     "typescript": "^5.9.3",
-    "vite-tsconfig-paths": "^6.0.4",
-    "vue": "^3.5.26",
-    "vue-tsc": "^3.2.2"
+    "vite-tsconfig-paths": "^6.0.5",
+    "vue": "^3.5.27",
+    "vue-tsc": "^3.2.4"
   },
   "resolutions": {
     "abckit": "workspace:*"
@@ -246,10 +337,8 @@
     "@nuxt/kit": "https://pkg.pr.new/@nuxt/kit@33005",
     "@nuxt/schema": "https://pkg.pr.new/@nuxt/schema@33005",
     "entities": "7.0.0",
-    "nuxt": "https://pkg.pr.new/nuxt@33005"
-  },
-  "patchedDependencies": {
-    "entities@7.0.0": "patches/entities@7.0.0.patch",
-    "entities@7.0.0@7.0.0": "patches/entities@7.0.0.patch"
+    "nuxt": "https://pkg.pr.new/nuxt@33005",
+    "nitro": "3.0.1-alpha.2",
+    "vite": "8.0.0-beta.10"
   }
 }

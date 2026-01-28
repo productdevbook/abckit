@@ -2,7 +2,7 @@
   "name": "playground",
   "version": "1.0.0",
   "type": "module",
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@10.28.2",
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
@@ -10,19 +10,19 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "abckit": "workspace:*",
-    "@nuxt/icon": "^2.2.0",
+    "@nuxt/icon": "^2.2.1",
     "@nuxt/scripts": "^0.13.2",
     "@nuxtjs/color-mode": "^4.0.0",
     "@nuxtjs/tailwindcss": "7.0.0-beta.1",
-    "@pinia/colada": "^0.21.1",
-    "@pinia/colada-nuxt": "^0.3.0",
+    "@pinia/colada": "^0.21.2",
+    "@pinia/colada-nuxt": "^0.3.1",
     "@pinia/colada-plugin-auto-refetch": "^0.2.4",
     "@pinia/nuxt": "^0.11.3",
     "@vee-validate/nuxt": "5.0.0-beta.0",
     "@vueuse/core": "^14.1.0",
     "@vueuse/nuxt": "^14.1.0",
-    "better-auth": "^1.4.12",
+    "abckit": "workspace:*",
+    "better-auth": "^1.4.17",
     "date-fns": "^4.1.0",
     "embla-carousel-vue": "^8.6.0",
     "notivue": "^2.4.5",
@@ -38,6 +38,6 @@
     "vue-input-otp": "^0.3.2",
     "vue-router": "^4.6.4",
     "vue-sonner": "^2.0.9",
-    "zod": "^4.3.5"
+    "zod": "^4.3.6"
   }
 }
